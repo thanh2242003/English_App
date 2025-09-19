@@ -1,4 +1,5 @@
 import 'package:english_app/data/questions.dart';
+import 'package:english_app/login_screen.dart';
 import 'package:english_app/my_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,27 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int currentStep = 0;
   final int totalStep = 3;
-  final currentQuestion = questions[0];
+
+  void answerQuestion() {
+    if (currentStep < totalStep - 1) {
+      setState(() {
+        currentStep++;
+      });
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return LoginScreen();
+          },
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final currentQuestion = questions[currentStep];
     double progress = (currentStep + 1) / totalStep;
     return Scaffold(
       body: Column(
@@ -41,10 +59,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: Colors.black,
             ),
           ),
-          SizedBox(height: 100,),
-          MyButton(data: currentQuestion.answers[0], onTap: () {}),
-          MyButton(data: currentQuestion.answers[1], onTap: () {}),
-          MyButton(data: currentQuestion.answers[2], onTap: () {}),
+          SizedBox(height: 100),
+          ...currentQuestion.answers.map((answer) {
+            return MyButton(data: answer, onTap: answerQuestion);
+          }),
         ],
       ),
     );

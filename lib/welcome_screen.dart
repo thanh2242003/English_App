@@ -7,6 +7,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +67,7 @@ class WelcomeScreen extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: ElevatedButton(
                   onPressed: () {},
-                  style: ElevatedButton.styleFrom(
+                  style: TextButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.grey,
                     padding: const EdgeInsets.symmetric(vertical: 14),

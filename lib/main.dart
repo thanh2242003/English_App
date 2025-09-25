@@ -1,7 +1,7 @@
-import 'package:english_app/login_screen.dart';
-import 'package:english_app/onboarding_screen.dart';
-import 'package:english_app/splash_screen.dart';
-import 'package:english_app/welcome_screen.dart';
+import 'package:english_app/presentation/screens/login_screen.dart';
+import 'package:english_app/presentation/screens/onboarding_screen.dart';
+import 'package:english_app/presentation/screens/splash_screen.dart';
+import 'package:english_app/presentation/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {

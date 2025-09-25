@@ -1,8 +1,9 @@
-import 'package:english_app/data/questions.dart';
-import 'package:english_app/login_screen.dart';
-import 'package:english_app/my_button.dart';
+import 'package:english_app/presentation/screens/login_screen.dart';
+import 'package:english_app/core/my_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../../data/questions_data.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -37,6 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final currentQuestion = questions[currentStep];
     double progress = (currentStep + 1) / totalStep;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Container(
@@ -61,7 +63,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           SizedBox(height: 100),
           ...currentQuestion.answers.map((answer) {
-            return MyButton(data: answer, onTap: answerQuestion);
+            return Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                    child: MyButton(data: answer, onTap: answerQuestion),
+                ),
+                SizedBox(height: 15),
+              ],
+            );
           }),
         ],
       ),

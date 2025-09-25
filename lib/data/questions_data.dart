@@ -1,4 +1,8 @@
-import 'package:english_app/models/onboarding_question.dart';
+class OnboardingQuestion {
+  const OnboardingQuestion(this.text, this.answers);
+  final String text;
+  final List<String> answers ;
+}
 
 const questions = [
   OnboardingQuestion('Trình độ tiếng Anh của bạn ở mức nào?', [

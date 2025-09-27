@@ -1,3 +1,4 @@
+import 'package:english_app/presentation/screens/home_screen.dart';
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/presentation/screens/onboarding_screen.dart';
 import 'package:english_app/presentation/screens/splash_screen.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
           //const SplashScreen(),
           Scaffold(
             body: SafeArea(
-              child: const OnboardingScreen(),
+              child: const HomeScreen(),
             ),
           ),
     );

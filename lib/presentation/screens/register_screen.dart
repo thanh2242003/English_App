@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/my_button.dart';
+import '../../core/widgets/my_button.dart';
 
 
 class RegisterScreen extends StatelessWidget {

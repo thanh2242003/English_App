@@ -1,4 +1,4 @@
-import 'package:english_app/core/my_button.dart';
+import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/presentation/screens/register_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';

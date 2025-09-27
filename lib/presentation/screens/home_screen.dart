@@ -1,4 +1,5 @@
-import 'package:english_app/core/my_button.dart';
+import 'package:english_app/core/widgets/my_button.dart';
+import 'package:english_app/presentation/widgets/lession_widget.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -101,84 +102,10 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 50),
               // Vòng tròn chính giữa
-              Container(
-                width: 270,
-                height: 270,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey, width: 10),
-                  image: DecorationImage(
-                    image: AssetImage(
-                      'assets/images/lesson_background_image_1.jpg',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Bài học 1",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      "Thì hiện tại đơn",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    // Hàng 3 ngôi sao
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        3,
-                        (index) => Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Icon(
-                              Icons.star,
-                              size: 74, // to hơn để tạo viền
-                              color: Colors.white,
-                            ),
-                            Icon(
-                              Icons.star,
-                              size: 60,
-                              color: Color(0xCCCCCCCD),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 45),
-
-                    // Nút bắt đầu
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        shape: StadiumBorder(),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: const Text(
-                        "Bắt đầu",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+              LessonWidget(
+                imagePath: 'assets/images/lesson_background_image_1.jpg',
+                lessonName: 'Bài học 1',
+                lessonTopic: 'Thì hiện tại đơn',
               ),
             ],
           ),

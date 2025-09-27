@@ -17,7 +17,7 @@ class LessonWidget extends StatelessWidget {
       height: 270,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey, width: 10),
+        border: Border.all(color: Color(0xFF2E2D2D), width: 10),
         image: DecorationImage(
           image: AssetImage(imagePath),
           fit: BoxFit.cover,
@@ -57,7 +57,7 @@ class LessonWidget extends StatelessWidget {
                     size: 74, // to hơn để tạo viền
                     color: Colors.white,
                   ),
-                  Icon(Icons.star, size: 60, color: Color(0xCCCCCCCD)),
+                  Icon(Icons.star, size: 58, color: Color(0xCCCCCCCD)),
                 ],
               ),
             ),

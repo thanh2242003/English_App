@@ -43,8 +43,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-
-                    // progress bar dài bằng text
                     SizedBox(
                       width: 180,
                       child: LinearProgressIndicator(
@@ -58,6 +56,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              //chuỗi ngày
               Icon(Icons.local_fire_department, color: Colors.orange, size: 45),
               Text(
                 'Chuỗi ngày: 1',
@@ -67,38 +66,42 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              //chuỗi ngày
               const SizedBox(height: 20),
               //tiến độ bài học
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: Transform.rotate(
-                  angle: 3.14,
-                  child: CircularProgressIndicator(
-                    value: 0.6, // 70%
-                    strokeWidth: 8,
-                    backgroundColor: Colors.grey,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.yellow),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 120,
+                    height: 120,
+                    child: Transform.rotate(
+                      angle: 3.14,
+                      child: CircularProgressIndicator(
+                        value: 0.6, // 70%
+                        strokeWidth: 8,
+                        backgroundColor: Colors.grey,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.yellow),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              //cấp độ
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Text(
-                  'Cấp độ 1',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                  const SizedBox(height: 10),
+                  //cấp độ
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF3C3745),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Text(
+                      'Tiến độ',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
               const SizedBox(height: 50),
               // Vòng tròn chính giữa

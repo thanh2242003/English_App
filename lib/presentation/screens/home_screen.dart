@@ -56,6 +56,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(height: 10,),
               //chuỗi ngày
               Icon(Icons.local_fire_department, color: Colors.orange, size: 45),
               Text(
@@ -66,7 +67,7 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               //tiến độ bài học
               Stack(
                 alignment: Alignment.center,
@@ -80,7 +81,9 @@ class HomeScreen extends StatelessWidget {
                         value: 0.6, // 70%
                         strokeWidth: 8,
                         backgroundColor: Colors.grey,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.yellow),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.yellow,
+                        ),
                       ),
                     ),
                   ),
@@ -103,12 +106,30 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 80),
               // Vòng tròn chính giữa
-              LessonWidget(
-                imagePath: 'assets/images/lesson_background_image_1.jpg',
-                lessonName: 'Bài học 1',
-                lessonTopic: 'Thì hiện tại đơn',
+              Container(
+                height: 270,
+                child: PageView(
+                  controller: PageController(viewportFraction: 0.8),
+                  children: [
+                    LessonWidget(
+                      imagePath: 'assets/images/lesson_background_image_1.jpg',
+                      lessonName: 'Bài học 1',
+                      lessonTopic: 'Thì hiện tại: câu khẳng định',
+                    ),
+                    LessonWidget(
+                      imagePath: 'assets/images/lesson_background_image_2.jpg',
+                      lessonName: 'Bài học 2',
+                      lessonTopic: 'Danh từ số nhiều',
+                    ),
+                    LessonWidget(
+                      imagePath: 'assets/images/lesson_background_image_3.jpg',
+                      lessonName: 'Bài học 3',
+                      lessonTopic: 'Thì hiện tại: câu nghi vấn',
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -119,6 +140,7 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           selectedItemColor: Colors.purple,
           unselectedItemColor: Colors.grey,
+          iconSize: 40,
           currentIndex: 0,
           onTap: (index) {},
           items: const [

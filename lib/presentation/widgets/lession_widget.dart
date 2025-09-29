@@ -13,14 +13,19 @@ class LessonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 270,
-      height: 270,
+      width: 280,
+      height: 280,
+      padding: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: Color(0xFF2E2D2D), width: 10),
         image: DecorationImage(
           image: AssetImage(imagePath),
           fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withOpacity(0.4),
+            BlendMode.darken,
+          ),
         ),
       ),
       child: Column(
@@ -29,18 +34,23 @@ class LessonWidget extends StatelessWidget {
           Text(
             lessonName,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            lessonTopic,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          SizedBox(
+            width: 200,
+            height: 55,
+            child: Text(
+              lessonTopic,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -62,7 +72,7 @@ class LessonWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 45),
+          //const SizedBox(height: 15),
           // Nút bắt đầu
           ElevatedButton(
             onPressed: () {},
@@ -77,7 +87,6 @@ class LessonWidget extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          const SizedBox(height: 20),
         ],
       ),
     );

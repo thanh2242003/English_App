@@ -1,13 +1,29 @@
 import 'package:english_app/presentation/screens/login_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/widgets/my_button.dart';
+import '../../data/auth_service.dart';
 
-
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +48,7 @@ class RegisterScreen extends StatelessWidget {
               SizedBox(height: 1),
               //TextField Email
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   hintText: 'Email',
                   contentPadding: EdgeInsets.all(25),
@@ -49,6 +66,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               //TextField Mật khẩu
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Mật khẩu',
@@ -66,6 +84,7 @@ class RegisterScreen extends StatelessWidget {
                 ),
               ),
               TextField(
+                controller: _confirmController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Nhập lại mật khẩu',
@@ -85,7 +104,53 @@ class RegisterScreen extends StatelessWidget {
               MyButton(
                 data: 'ĐĂNG KÝ',
                 borderColor: Colors.blue,
-                onTap: () {},
+                onTap: () async {
+                  final email = _emailController.text.trim();
+                  final password = _passwordController.text.trim();
+                  final confirm = _confirmController.text.trim();
+
+                  //  Kiểm tra rỗng
+                  if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Vui lòng điền đủ thông tin")),
+                    );
+                    return;
+                  }
+
+                  //  Kiểm tra mật khẩu khớp
+                  if (password != confirm) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Mật khẩu không khớp!")),
+                    );
+                    return;
+                  }
+
+                  try {
+                    //  Gọi AuthService
+                    final user = await AuthService().signUp(email, password);
+
+                    if (user != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Tạo tài khoản thành công!")),
+                      );
+
+                      //  Chuyển sang LoginScreen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Đăng ký thất bại!")),
+                      );
+                    }
+                  } catch (e) {
+                    //  Bắt lỗi Firebase hoặc lỗi khác
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Đăng ký thất bại: $e")),
+                    );
+                  }
+                },
               ),
               RichText(
                 text: TextSpan(

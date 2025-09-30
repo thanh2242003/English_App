@@ -44,7 +44,7 @@ class MyButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Image.asset(iconPath!, width: 24, height: 24),
-                  SizedBox(width: 75),
+                  SizedBox(width: 40),
                   Text(
                     data,
                     style: TextStyle(

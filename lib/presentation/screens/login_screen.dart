@@ -1,11 +1,96 @@
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/presentation/screens/register_screen.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-class LoginScreen extends StatelessWidget {
+import 'home_screen.dart';
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  // Đăng nhập bằng email + password
+  Future<void> loginWithEmail() async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      if (credential.user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+    }
+  }
+
+  // Đăng nhập bằng Google
+  Future<void> loginWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+      final googleAuth = await googleUser?.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+      final userCred = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      if (userCred.user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Google lỗi: $e")));
+    }
+  }
+
+  // Đăng nhập bằng Facebook
+  // Future<void> loginWithFacebook() async {
+  //   try {
+  //     final LoginResult result = await FacebookAuth.instance.login();
+  //     if (result.status == LoginStatus.success) {
+  //       final OAuthCredential credential =
+  //       FacebookAuthProvider.credential(result.accessToken!.token);
+  //       await FirebaseAuth.instance.signInWithCredential(credential);
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text("Đăng nhập Facebook thành công!")),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Facebook lỗi: ${result.message}")),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("Facebook lỗi: $e")),
+  //     );
+  //   }
+  // }
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +115,7 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: 1),
               //TextField Email
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   hintText: 'Email',
                   contentPadding: EdgeInsets.all(25),
@@ -47,6 +133,7 @@ class LoginScreen extends StatelessWidget {
               ),
               //TextField Mật khẩu
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Mật khẩu',
@@ -66,12 +153,12 @@ class LoginScreen extends StatelessWidget {
               MyButton(
                 data: 'ĐĂNG NHẬP',
                 borderColor: Colors.blue,
-                onTap: () {},
+                onTap: loginWithEmail,
               ),
               MyButton(
                 data: 'ĐĂNG NHẬP BẰNG GOOGLE',
                 iconPath: 'assets/images/google_logo.png',
-                onTap: () {},
+                onTap: loginWithGoogle,
               ),
               MyButton(
                 data: 'ĐĂNG NHẬP BẰNG FACEBOOK',

@@ -1,7 +1,9 @@
 import 'package:english_app/presentation/screens/home_screen.dart';
+import 'package:english_app/presentation/screens/lesson_questions_screen.dart';
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/presentation/screens/onboarding_screen.dart';
 import 'package:english_app/presentation/screens/splash_screen.dart';
+import 'package:english_app/presentation/screens/test_screen.dart';
 import 'package:english_app/presentation/screens/welcome_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
           //const SplashScreen(),
           Scaffold(
             body: SafeArea(
-              child: const OnboardingScreen(),
+              child: const TestScreen(),
             ),
           ),
     );

@@ -101,56 +101,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               ),
-              MyButton(
-                data: 'ĐĂNG KÝ',
-                borderColor: Colors.blue,
-                onTap: () async {
-                  final email = _emailController.text.trim();
-                  final password = _passwordController.text.trim();
-                  final confirm = _confirmController.text.trim();
+              SizedBox(
+                width: double.infinity,
+                child: MyButton(
+                  data: 'ĐĂNG KÝ',
+                  borderColor: Colors.blue,
+                  onTap: () async {
+                    final email = _emailController.text.trim();
+                    final password = _passwordController.text.trim();
+                    final confirm = _confirmController.text.trim();
 
-                  //  Kiểm tra rỗng
-                  if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Vui lòng điền đủ thông tin")),
-                    );
-                    return;
-                  }
-
-                  //  Kiểm tra mật khẩu khớp
-                  if (password != confirm) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Mật khẩu không khớp!")),
-                    );
-                    return;
-                  }
-
-                  try {
-                    //  Gọi AuthService
-                    final user = await AuthService().signUp(email, password);
-
-                    if (user != null) {
+                    //  Kiểm tra rỗng
+                    if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Tạo tài khoản thành công!")),
+                        const SnackBar(content: Text("Vui lòng điền đủ thông tin")),
                       );
+                      return;
+                    }
 
-                      //  Chuyển sang LoginScreen
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
-                    } else {
+                    //  Kiểm tra mật khẩu khớp
+                    if (password != confirm) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Đăng ký thất bại!")),
+                        const SnackBar(content: Text("Mật khẩu không khớp!")),
+                      );
+                      return;
+                    }
+
+                    try {
+                      //  Gọi AuthService
+                      final user = await AuthService().signUp(email, password);
+
+                      if (user != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Tạo tài khoản thành công!")),
+                        );
+
+                        //  Chuyển sang LoginScreen
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Đăng ký thất bại!")),
+                        );
+                      }
+                    } catch (e) {
+                      //  Bắt lỗi Firebase hoặc lỗi khác
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Đăng ký thất bại: $e")),
                       );
                     }
-                  } catch (e) {
-                    //  Bắt lỗi Firebase hoặc lỗi khác
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Đăng ký thất bại: $e")),
-                    );
-                  }
-                },
+                  },
+                ),
               ),
               RichText(
                 text: TextSpan(

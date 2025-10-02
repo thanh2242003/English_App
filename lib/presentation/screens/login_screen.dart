@@ -26,9 +26,10 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
       if (credential.user != null) {
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (Route<dynamic> route) => false,
         );
       }
     } catch (e) {
@@ -51,9 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
         credential,
       );
       if (userCred.user != null) {
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (Route<dynamic> route) => false,
         );
       }
     } catch (e) {
@@ -150,10 +152,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              MyButton(
-                data: 'ĐĂNG NHẬP',
-                borderColor: Colors.blue,
-                onTap: loginWithEmail,
+              SizedBox(
+                width: double.infinity,
+                child: MyButton(
+                  data: 'ĐĂNG NHẬP',
+                  borderColor: Colors.blue,
+                  onTap: loginWithEmail,
+                ),
               ),
               MyButton(
                 data: 'ĐĂNG NHẬP BẰNG GOOGLE',

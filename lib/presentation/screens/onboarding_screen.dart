@@ -67,7 +67,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    width: double.infinity,
                     child: MyButton(data: answer, onTap: answerQuestion),
+                  ),
                 ),
                 SizedBox(height: 15),
               ],

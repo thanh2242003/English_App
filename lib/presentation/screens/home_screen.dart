@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: progress,
                               backgroundColor: Colors.black,
-                              color: Colors.green,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                               minHeight: 8,
                               borderRadius: BorderRadius.circular(12),
                             ),

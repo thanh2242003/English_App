@@ -1,5 +1,5 @@
 import 'package:english_app/presentation/screens/home_screen.dart';
-import 'package:english_app/presentation/screens/lesson_questions_screen.dart';
+import 'package:english_app/presentation/screens/lesson_quiz_screen.dart';
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/presentation/screens/onboarding_screen.dart';
 import 'package:english_app/presentation/screens/splash_screen.dart';

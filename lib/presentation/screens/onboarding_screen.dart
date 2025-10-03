@@ -1,9 +1,8 @@
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/core/widgets/my_button.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/questions_data.dart';
+import '../../data/onboarding_questions_data.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

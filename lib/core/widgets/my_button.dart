@@ -22,41 +22,46 @@ class MyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Nếu disable thì đổi màu
+    final Color effectiveBg = enabled ? backgroundColor : Colors.grey.shade800;
+    final Color effectiveText = enabled ? textColor : Colors.grey.shade400;
+    final Color effectiveBorder = enabled ? borderColor : Colors.grey.shade600;
+
     return ElevatedButton(
       onPressed: enabled ? onTap : null,
       style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
+        backgroundColor: effectiveBg,
         shadowColor: Colors.transparent,
-        padding: EdgeInsets.symmetric(vertical: 30,horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: borderColor, width: 2),
+          side: BorderSide(color: effectiveBorder, width: 2),
         ),
       ),
       child: iconPath != null
           ? Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(iconPath!, width: 24, height: 24),
-                SizedBox(width: 40),
-                Text(
-                  data,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            )
-          : Text(
-              data,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Image.asset(iconPath!, width: 24, height: 24),
+          const SizedBox(width: 40),
+          Text(
+            data,
+            style: TextStyle(
+              color: effectiveText,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
+          ),
+        ],
+      )
+          : Text(
+        data,
+        style: TextStyle(
+          color: effectiveText,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
     );
   }
 }

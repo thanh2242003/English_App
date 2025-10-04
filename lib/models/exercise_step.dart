@@ -1,4 +1,4 @@
-enum ExerciseType {matchWords, chooseTranslation}
+enum ExerciseType {matchWords, chooseTranslation, typingQuiz}
 
 class ExerciseStep {
   final ExerciseType type;

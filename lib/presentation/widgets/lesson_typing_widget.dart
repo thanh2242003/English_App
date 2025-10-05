@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'custom_keyboard.dart';
 
 class LessonTypingWidget extends StatefulWidget {
@@ -10,8 +11,8 @@ class LessonTypingWidget extends StatefulWidget {
     this.onNext,
   });
 
-  final String question; // ví dụ: "Cà phê"
-  final String answer; // ví dụ: "coffee"
+  final String question;
+  final String answer;
   final VoidCallback? onNext; // callback khi bấm "Tiếp theo"
 
   @override
@@ -23,6 +24,33 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
   String userInput = "";
   bool showResult = false;
   bool isCorrect = false;
+  
+  // Text-to-speech
+  FlutterTts flutterTts = FlutterTts();
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+  }
+  
+  void _initTts() async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.9);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+  }
+  
+  void _speak(String text) async {
+    await flutterTts.stop();
+    await flutterTts.speak(text);
+  }
+  
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
+  }
 
   // Khi nhấn chữ cái
   void _onKeyPress(String char) {
@@ -52,17 +80,19 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
       showResult = true;
     });
 
-    //sai thì popup sai
-    if (!isCorrect) {
-      Future.delayed(const Duration(milliseconds: 1000), () {
+    // Nếu đúng thì phát âm từ tiếng Anh
+    if (isCorrect) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _speak(widget.answer);
+      });
+    } else {
+      //sai thì popup sai
+      Future.delayed(const Duration(milliseconds: 500), () {
         setState(() {
           showResult = false;
           userInput = ''; // Xóa input để người dùng nhập lại
         });
       });
-      // Future.delayed(const Duration(seconds: 2), () {
-      //   if (widget.onNext != null) widget.onNext!();
-      // });
     }
   }
 

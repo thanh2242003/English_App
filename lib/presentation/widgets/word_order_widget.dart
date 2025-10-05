@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import '../../models/word_order_quiz.dart';
 
 class WordOrderWidget extends StatefulWidget {
@@ -20,6 +21,58 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   bool _showResult = false;
   bool _isCorrect = false;
   final List<String> _userAnswerWords = [];
+  
+  // Text-to-speech
+  FlutterTts flutterTts = FlutterTts();
+  //bool _isSpeaking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+  }
+  
+  void _initTts() async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.8);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+  }
+  
+  void _speak(String text) async {
+    // Dừng bất kỳ phát âm nào đang diễn ra trước khi phát âm từ mới
+    await flutterTts.stop();
+    
+    // Thêm delay nhỏ để đảm bảo stop hoàn tất
+    await Future.delayed(const Duration(milliseconds: 50));
+    
+    // Tăng tốc độ phát âm khi bấm vào từ
+    await flutterTts.setSpeechRate(1.2);
+    await flutterTts.speak(text);
+    
+    // Khôi phục tốc độ bình thường sau khi phát âm xong
+    Future.delayed(const Duration(milliseconds: 200), () async {
+      await flutterTts.setSpeechRate(0.8);
+    });
+  }
+  
+  void _speakSentence(String sentence) async {
+    // Dừng bất kỳ phát âm nào đang diễn ra
+    await flutterTts.stop();
+    
+    // Thêm delay nhỏ để đảm bảo stop hoàn tất
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Phát âm câu với tốc độ bình thường
+    await flutterTts.setSpeechRate(0.8);
+    await flutterTts.speak(sentence);
+  }
+  
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
+  }
 
   void _checkAnswer() {
     final userAnswerString = _userAnswerWords.join(" ");
@@ -29,6 +82,11 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
       setState(() {
         _isCorrect = true;
         _showResult = true;
+      });
+      
+      // Phát âm câu hoàn chỉnh khi đúng
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _speakSentence(correctAnswerString);
       });
     } else {
       setState(() {
@@ -147,6 +205,8 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                               foregroundColor: Colors.white,
                             ),
                             onPressed: () {
+                              // Phát âm từ tiếng Anh khi nhấn để xóa
+                              //_speak(word);
                               setState(() {
                                 _userAnswerWords.remove(word);
                               });
@@ -178,6 +238,8 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                             ),
                           ),
                           onPressed: () {
+                            // Phát âm từ tiếng Anh khi nhấn chọn
+                            _speak(word);
                             setState(() {
                               _userAnswerWords.add(word);
                             });

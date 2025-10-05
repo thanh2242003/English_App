@@ -1,6 +1,7 @@
 import 'package:english_app/models/match_word_quiz.dart';
 import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
 
 class LessonMatchWidget extends StatefulWidget {
@@ -31,6 +32,9 @@ class _LessonMatchWidgetState extends State<LessonMatchWidget> {
 
   bool shuffled = false;
   bool showResult = false;
+  
+  // Text-to-speech
+  FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
@@ -44,6 +48,27 @@ class _LessonMatchWidgetState extends State<LessonMatchWidget> {
     for (var v in vietnameseWords) {
       vietnameseHighlight[v] = Colors.white;
     }
+    
+    // Khởi tạo text-to-speech
+    _initTts();
+  }
+  
+  void _initTts() async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.9);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+  }
+  
+  void _speak(String text) async {
+    await flutterTts.stop();
+    await flutterTts.speak(text);
+  }
+  
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
   }
 
   void shuffleVietnamese() {
@@ -55,6 +80,10 @@ class _LessonMatchWidgetState extends State<LessonMatchWidget> {
 
   void onEnglishTap(String en) {
     if (matched.contains(en)) return;
+    
+    // Phát âm từ tiếng Anh
+    _speak(en);
+    
     setState(() {
       if (selectedEnglish != null && selectedEnglish != en) {
         englishHighlight[selectedEnglish!] = Colors.white;

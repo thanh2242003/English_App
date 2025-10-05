@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/models/translation_quiz.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class LessonTranslationWidget extends StatefulWidget {
   const LessonTranslationWidget({
@@ -21,6 +22,47 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
   String? selectedOption;
   bool? isCorrect;
   bool showResult = false;
+  
+  // Text-to-speech
+  FlutterTts flutterTts = FlutterTts();
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+    // Phát âm từ tiếng Anh khi vừa vào màn hình
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _speak(widget.question.englishWord);
+    });
+  }
+  
+  @override
+  void didUpdateWidget(LessonTranslationWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Phát âm từ tiếng Anh mới khi widget được cập nhật (chuyển sang từ mới)
+    if (oldWidget.question.englishWord != widget.question.englishWord) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _speak(widget.question.englishWord);
+      });
+    }
+  }
+  
+  void _initTts() async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(0.9);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+  }
+  
+  void _speak(String text) async {
+    await flutterTts.speak(text);
+  }
+  
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
+  }
 
   void _handleSelect(String option) {
     setState(() {
@@ -45,9 +87,12 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
                 // English word
                 Container(
                   margin: const EdgeInsets.only(left: 20),
-                  child: Text(
-                    widget.question.englishWord,
-                    style: const TextStyle(color: Colors.white, fontSize: 20),
+                  child: GestureDetector(
+                    onTap: () => _speak(widget.question.englishWord),
+                    child: Text(
+                      widget.question.englishWord,
+                      style: const TextStyle(color: Colors.white, fontSize: 20),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -117,9 +162,12 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text(
-                  correctAnswer,
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                GestureDetector(
+                  onTap: () => _speak(widget.question.englishWord),
+                  child: Text(
+                    correctAnswer,
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                  ),
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(

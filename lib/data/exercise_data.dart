@@ -123,7 +123,7 @@ final lesson1 = Lesson(
       exercises: [
         ExerciseStep(
           type: ExerciseType.wordOrder,
-          instruction: "Sắp xếp các từ tiếng Anh thành câu đúng",
+          instruction: "Sắp xếp các từ thành câu đúng",
           data: WordOrderQuiz(
             vietnamese: "Tôi thích trà",
             words: ["tea", "I", "like"], // xáo trộn nếu muốn

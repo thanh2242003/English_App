@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomKeyboard extends StatelessWidget {
-  final String correctWord; // ví dụ: "tea"
+  final String correctWord;
   final void Function(String) onKeyTap;
   final VoidCallback onDelete;
 
@@ -17,7 +17,7 @@ class CustomKeyboard extends StatelessWidget {
     // Lấy ra danh sách ký tự hợp lệ
     final allowedLetters = correctWord.toLowerCase().split('').toSet();
 
-    // Bố cục 3 hàng bàn phím (giống bàn phím QWERTY)
+    // Bố cục 3 hàng bàn phím
     const keyboardRows = [
       "qwertyuiop",
       "asdfghjkl",

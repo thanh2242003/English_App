@@ -1,7 +1,6 @@
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/presentation/screens/onboarding_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatelessWidget {

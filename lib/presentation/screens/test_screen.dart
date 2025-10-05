@@ -1,12 +1,18 @@
-import 'package:english_app/models/match_word.dart';
-import 'package:english_app/models/typing_quiz.dart';
-import 'package:english_app/presentation/widgets/lesson_match_widget.dart';
-import 'package:english_app/presentation/widgets/lesson_typing_widget.dart';
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_app/data/exercise_data.dart';
 import 'package:english_app/models/exercise_step.dart';
+import 'package:english_app/models/match_word_quiz.dart';
 import 'package:english_app/models/translation_quiz.dart';
+import 'package:english_app/models/typing_quiz.dart';
+import 'package:english_app/presentation/widgets/lesson_match_widget.dart';
 import 'package:english_app/presentation/widgets/lesson_translation_widget.dart';
+import 'package:english_app/presentation/widgets/lesson_typing_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
+import '../../models/word_order_quiz.dart';
+import '../widgets/word_order_widget.dart';
+import 'home_screen.dart';
 
 class TestScreen extends StatefulWidget {
   const TestScreen({super.key});
@@ -16,47 +22,124 @@ class TestScreen extends StatefulWidget {
 }
 
 class _TestScreenState extends State<TestScreen> {
-  int currentStep = 0;
+  int _currentPartIndex = 0;
+  int _currentExerciseIndex = 0;
+  bool _isPartCompleted = false;
 
-  void _goToNextStep() {
-    if (currentStep < step.length - 1) {
-      setState(() {
-        currentStep++;
-      });
-    } else {
+  // Lấy danh sách các bài tập của phần hiện tại
+  List<ExerciseStep> get _currentExercises =>
+      lesson1.parts[_currentPartIndex].exercises;
+
+  // Lấy bài tập hiện tại
+  ExerciseStep get _currentExercise => _currentExercises[_currentExerciseIndex];
+
+  // Hàm lưu tiến trình lên Firebase
+  Future<void> saveProgress() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid);
+    await userDocRef.set({
+      'currentLesson': lesson1.title,
+      'currentPart': _currentPartIndex + 1,
+      'lastCompletedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  // Chuyển sang bài tập tiếp theo
+  void _goToNextExercise() {
+    setState(() {
+      if (_currentExerciseIndex < _currentExercises.length - 1) {
+        _currentExerciseIndex++;
+      } else {
+        // Đã hoàn thành tất cả các bài tập trong phần này
+        _isPartCompleted = true;
+      }
+    });
+  }
+
+  // Chuyển sang phần tiếp theo
+  void _goToNextPart() {
+    setState(() {
+      if (_currentPartIndex < lesson1.parts.length - 1) {
+        _currentPartIndex++;
+        _currentExerciseIndex = 0;
+        _isPartCompleted = false;
+      } else {
+        // Đã hoàn thành tất cả các phần, kết thúc bài học
+        _handleLessonCompletion();
+      }
+    });
+  }
+
+  // Xử lý khi hoàn thành toàn bộ bài học
+  void _handleLessonCompletion() {
+    saveProgress();
+    if (mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("🎉 Hoàn thành bài học!")));
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        (route) => false,
+      );
+    }
+  }
+
+  // Widget hiển thị nội dung bài tập tương ứng
+  Widget _buildExerciseContent() {
+    final exerciseData = _currentExercise.data;
+
+    switch (_currentExercise.type) {
+      case ExerciseType.matchWords:
+        return LessonMatchWidget(
+          data: exerciseData as MatchWordsQuiz,
+          onNext: _goToNextExercise,
+        );
+      case ExerciseType.chooseTranslation:
+        return LessonTranslationWidget(
+          question: exerciseData as TranslationQuiz,
+          onNext: _goToNextExercise,
+        );
+      case ExerciseType.typingQuiz:
+        final data = exerciseData as TypingQuiz;
+        return LessonTypingWidget(
+          question: data.vietnamese,
+          answer: data.english,
+          onNext: _goToNextExercise,
+        );
+      case ExerciseType.wordOrder:
+        return WordOrderWidget(
+          quizData: exerciseData as WordOrderQuiz,
+          onNext: _goToNextExercise,
+        );
+      // default:
+      //   return const Center(child: Text("Loại bài tập không xác định."));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final exercise = step[currentStep];
-    final String instruction = exercise.instruction;
-    Widget content;
-
-    switch (exercise.type) {
-      case ExerciseType.matchWords:
-        final data = exercise.data as MatchWords;
-        content = LessonMatchWidget(data: data, onNext: _goToNextStep);
-        break;
-      case ExerciseType.chooseTranslation:
-        final data = exercise.data as TranslationQuiz;
-        content = LessonTranslationWidget(
-          question: data,
-          onNext: _goToNextStep,
-        );
-        break;
-      case ExerciseType.typingQuiz:
-        final data = exercise.data as TypingQuiz;
-        content = LessonTypingWidget(
-          question: data.vietnamese,
-          answer: data.english,
-          onNext: _goToNextStep, // callback chuyển sang câu tiếp theo
-        );
-        break;
+    // Tính toán tiến trình tổng thể của toàn bộ bài học
+    int totalExercisesInLesson =
+    lesson1.parts.fold(0, (prev, part) => prev + part.exercises.length);
+    int completedExercisesInLesson = 0;
+    for (int i = 0; i < _currentPartIndex; i++) {
+      completedExercisesInLesson += lesson1.parts[i].exercises.length;
     }
+    // Thêm +1 nếu chưa hoàn thành phần, để thanh tiến trình không bị lùi lại khi bắt đầu phần mới
+    completedExercisesInLesson += _isPartCompleted ? _currentExercises.length : _currentExerciseIndex;
+
+    double progress = totalExercisesInLesson > 0
+        ? completedExercisesInLesson / totalExercisesInLesson
+        : 0;
+
+    // Lấy hướng dẫn từ bài tập hiện tại, trừ khi phần đã hoàn thành
+    final String instruction = _isPartCompleted
+        ? "Làm tốt lắm!" // Hoặc bất kỳ văn bản nào bạn muốn
+        : _currentExercise.instruction;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -67,7 +150,7 @@ class _TestScreenState extends State<TestScreen> {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: LinearProgressIndicator(
-                value: (currentStep + 1) / step.length,
+                value: progress,
                 backgroundColor: const Color(0xFF3A3939),
                 valueColor: const AlwaysStoppedAnimation<Color>(Colors.yellow),
                 minHeight: 15,
@@ -75,20 +158,51 @@ class _TestScreenState extends State<TestScreen> {
               ),
             ),
             // instruction text
-            Text(
-              instruction,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                instruction,
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 20),
-            //Nội dung
-            Expanded(child: content),
+            // Nội dung
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: _isPartCompleted
+                    ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "🎉 Hoàn thành ${lesson1.parts[_currentPartIndex].title}!",
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _goToNextPart,
+                        child: const Text("Tiếp tục"),
+                      ),
+                    ],
+                  ),
+                )
+                    : _buildExerciseContent(),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+
 }

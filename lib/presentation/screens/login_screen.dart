@@ -17,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscureText = true;
 
   // Đăng nhập bằng email + password
   Future<void> loginWithEmail() async {
@@ -136,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
               //TextField Mật khẩu
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscureText,
                 decoration: InputDecoration(
                   hintText: 'Mật khẩu',
                   contentPadding: EdgeInsets.all(25),
@@ -149,6 +150,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderSide: BorderSide(color: Colors.blue, width: 2),
                     // viền khi focus
                     borderRadius: BorderRadius.circular(12),
+                  ),
+                  //ẩn hiện mật khẩu
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
                   ),
                 ),
               ),

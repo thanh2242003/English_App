@@ -16,6 +16,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirm = true;
 
   @override
   void dispose() {
@@ -67,7 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               //TextField Mật khẩu
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   hintText: 'Mật khẩu',
                   contentPadding: EdgeInsets.all(25),
@@ -81,11 +83,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // viền khi focus
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                 ),
               ),
               TextField(
                 controller: _confirmController,
-                obscureText: true,
+                obscureText: _obscureConfirm,
                 decoration: InputDecoration(
                   hintText: 'Nhập lại mật khẩu',
                   contentPadding: EdgeInsets.all(25),
@@ -98,6 +110,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     borderSide: BorderSide(color: Colors.blue, width: 2),
                     // viền khi focus
                     borderRadius: BorderRadius.circular(12),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirm ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirm = !_obscureConfirm;
+                      });
+                    },
                   ),
                 ),
               ),
@@ -114,7 +136,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     //  Kiểm tra rỗng
                     if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Vui lòng điền đủ thông tin")),
+                        const SnackBar(
+                          content: Text("Vui lòng điền đủ thông tin"),
+                        ),
                       );
                       return;
                     }
@@ -133,13 +157,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       if (user != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Tạo tài khoản thành công!")),
+                          const SnackBar(
+                            content: Text("Tạo tài khoản thành công!"),
+                          ),
                         );
 
                         //  Chuyển sang LoginScreen
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(

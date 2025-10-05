@@ -6,9 +6,11 @@ class LessonWidget extends StatelessWidget {
     required this.imagePath,
     required this.lessonName,
     required this.lessonTopic,
+    required this.onPress,
   });
 
   final String imagePath, lessonName, lessonTopic;
+  final VoidCallback onPress;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +77,7 @@ class LessonWidget extends StatelessWidget {
           //const SizedBox(height: 15),
           // Nút bắt đầu
           ElevatedButton(
-            onPressed: () {},
+            onPressed: onPress,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,

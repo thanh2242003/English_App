@@ -1,6 +1,6 @@
+import 'package:english_app/models/match_word_quiz.dart';
 import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
-import 'package:english_app/models/match_word.dart';
 import 'dart:math';
 
 class LessonMatchWidget extends StatefulWidget {
@@ -10,7 +10,7 @@ class LessonMatchWidget extends StatefulWidget {
     required this.onNext,
   });
 
-  final MatchWords data;
+  final MatchWordsQuiz data;
   final VoidCallback onNext; // callback khi bấm “Tiếp theo”
 
   @override
@@ -71,7 +71,7 @@ class _LessonMatchWidgetState extends State<LessonMatchWidget> {
     final correctVN = widget.data.wordMap[currentEnglish];
 
     if (vn == correctVN) {
-      // ✅ Đúng
+      // Đúng
       setState(() {
         englishHighlight[currentEnglish] = Colors.green;
         vietnameseHighlight[vn] = Colors.green;
@@ -87,7 +87,7 @@ class _LessonMatchWidgetState extends State<LessonMatchWidget> {
         });
       });
     } else {
-      // ❌ Sai
+      // Sai
       setState(() {
         selectedVietnamese = vn;
         englishHighlight[currentEnglish] = Colors.red;

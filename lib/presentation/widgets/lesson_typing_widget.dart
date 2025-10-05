@@ -24,18 +24,6 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
   bool showResult = false;
   bool isCorrect = false;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   //answerChars = widget.answer.toLowerCase().split('');
-  //   String cleanAnswer = widget.answer.toLowerCase().trim();
-  //   answerChars = cleanAnswer.split('');
-  //   print('widget.answer (raw): "${widget.answer}"'); // In chuỗi gốc
-  //   print('widget.answer (clean): "$cleanAnswer"'); // In chuỗi sau khi làm sạch
-  //   print('answerChars: $answerChars'); // In danh sách ký tự
-  //   print('answerChars.length: ${answerChars.length}'); // In độ dài
-  // }
-
   // Khi nhấn chữ cái
   void _onKeyPress(String char) {
     if (showResult) return;
@@ -80,8 +68,8 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
 
   // Hiển thị popup kết quả
   Widget _buildResultBox(BuildContext context) {
-    final color = isCorrect! ? Colors.green[900] : Colors.red;
-    final message = isCorrect! ? "🎉 Chính xác!" : "❌ Chưa chính xác!";
+    final color = isCorrect ? Colors.green[900] : Colors.red;
+    final message = isCorrect ? "Chính xác!" : "Chưa chính xác!";
     final correctAnswer = "${widget.answer} - ${widget.question}";
 
     return Align(
@@ -139,24 +127,6 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
               ),
             ),
           ],
-          // ElevatedButton(
-          //   style: ElevatedButton.styleFrom(
-          //     backgroundColor: color,
-          //     //minimumSize: const Size(double.infinity, 50),
-          //   ),
-          //   onPressed: () {
-          //     setState(() {
-          //       showResult = false;
-          //       userInput = '';
-          //       isCorrect = false;
-          //     });
-          //     widget.onNext?.call(); // gọi callback để chuyển câu tiếp theo
-          //   },
-          //   child: const Text(
-          //     "Tiếp theo",
-          //     style: TextStyle(color: Colors.white, fontSize: 18),
-          //   ),
-          // ),
           SizedBox(height: 20),
         ],
       ),
@@ -219,7 +189,7 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
 
                 const SizedBox(height: 30),
 
-                // ✅ Gọi bàn phím custom bạn đã có
+                // Gọi bàn phím custom
                 Column(
                   children: [
                     CustomKeyboard(

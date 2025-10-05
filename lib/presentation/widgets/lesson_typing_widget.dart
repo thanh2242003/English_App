@@ -68,7 +68,7 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
 
   // Hiển thị popup kết quả
   Widget _buildResultBox(BuildContext context) {
-    final color = isCorrect ? Colors.green[900] : Colors.red;
+    final color = isCorrect ? Colors.green : Colors.red;
     final message = isCorrect ? "Chính xác!" : "Chưa chính xác!";
     final correctAnswer = "${widget.answer} - ${widget.question}";
 
@@ -101,32 +101,35 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
                     correctAnswer,
                     style: const TextStyle(color: Colors.white, fontSize: 18),
                   ),
+                  const SizedBox(height: 16),
+                  if (isCorrect) ...[
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: color,
+                        //minimumSize: const Size(50, 50),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          showResult = false;
+                          userInput = '';
+                          isCorrect = false;
+                        });
+                        widget.onNext?.call(); // Chuyển sang câu tiếp theo
+                      },
+                      child: const Text(
+                        "Tiếp theo",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          //const SizedBox(height: 16),
-          if (isCorrect) ...[
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                minimumSize: const Size(50, 50),
-              ),
-              onPressed: () {
-                setState(() {
-                  showResult = false;
-                  userInput = '';
-                  isCorrect = false;
-                });
-                widget.onNext?.call(); // Chuyển sang câu tiếp theo
-              },
-              child: const Text(
-                "Tiếp theo",
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-          ],
           SizedBox(height: 20),
         ],
       ),
@@ -205,6 +208,7 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
                       enabled: userInput.length == answerChars.length,
                       onTap: _onCheck,
                     ),
+                    const SizedBox(height: 5,),
                   ],
                 ),
               ],

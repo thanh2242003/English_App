@@ -44,7 +44,7 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
                 const SizedBox(height: 20),
                 // English word
                 Container(
-                  margin: const EdgeInsets.only(left: 70),
+                  margin: const EdgeInsets.only(left: 20),
                   child: Text(
                     widget.question.englishWord,
                     style: const TextStyle(color: Colors.white, fontSize: 20),
@@ -63,10 +63,12 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
                 // Options
                 if (!showResult)
                   ...widget.question.options.map(
-                        (option) => Container(
+                    (option) => Container(
                       width: double.infinity,
                       margin: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                       child: MyButton(
                         data: option,
                         onTap: () => _handleSelect(option),
@@ -86,7 +88,7 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
 
   Widget _buildResultBox(BuildContext context) {
     final color = isCorrect! ? Colors.green : Colors.red;
-    final message = isCorrect! ? "🎉 Chính xác!" : "❌ Sai rồi!";
+    final message = isCorrect! ? "Chính xác!" : "Chưa chính xác";
     final correctAnswer =
         "${widget.question.englishWord} - ${widget.question.meaning}";
 
@@ -94,6 +96,7 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
       alignment: Alignment.bottomCenter,
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: double.infinity,
@@ -113,34 +116,35 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 Text(
                   correctAnswer,
                   style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: color,
+                    //minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      showResult = false;
+                      selectedOption = null;
+                      isCorrect = null;
+                    });
+                    widget.onNext(); // gọi callback để chuyển câu tiếp theo
+                  },
+                  child: const Text(
+                    "Tiếp theo",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
             ),
           ),
-          //const SizedBox(height: 16),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: color,
-              //minimumSize: const Size(double.infinity, 50),
-            ),
-            onPressed: () {
-              setState(() {
-                showResult = false;
-                selectedOption = null;
-                isCorrect = null;
-              });
-              widget.onNext(); // gọi callback để chuyển câu tiếp theo
-            },
-            child: const Text(
-              "Tiếp theo",
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-          ),
-          SizedBox(height: 20,),
+          SizedBox(height: 20),
         ],
       ),
     );

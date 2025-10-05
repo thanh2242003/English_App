@@ -26,7 +26,7 @@ class CustomKeyboard extends StatelessWidget {
 
     return Container(
       color: Colors.transparent,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      //padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -36,7 +36,7 @@ class CustomKeyboard extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Hàng cuối có nút XÓA
+          // nút XÓA
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -62,38 +62,45 @@ class CustomKeyboard extends StatelessWidget {
 
   // Tạo từng hàng phím
   Widget _buildRow(String letters, Set<String> allowedLetters, BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final buttonWidth = (screenWidth - 60)/10;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(1),
       child: Row(
+        //alignment: WrapAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 0,
         children: [
           for (var letter in letters.split(''))
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: ElevatedButton(
-                onPressed: allowedLetters.contains(letter)
-                    ? () => onKeyTap(letter)
-                    : null, // disable nếu không có trong từ
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: allowedLetters.contains(letter)
-                      ? Colors.white.withOpacity(0.8)
-                      : Colors.grey[800],
-                  disabledBackgroundColor: Colors.grey[800],
-                  foregroundColor: Colors.black,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  onPressed: allowedLetters.contains(letter)
+                      ? () => onKeyTap(letter)
+                      : null, // disable nếu không có trong từ
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: allowedLetters.contains(letter)
+                        ? Colors.white.withOpacity(0.8)
+                        : Colors.grey[800],
+                    disabledBackgroundColor: Colors.grey[800],
+                    foregroundColor: Colors.black,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    minimumSize: const Size(38, 48),
                   ),
-                  padding: const EdgeInsets.all(12),
-                  minimumSize: const Size(38, 48),
-                ),
-                child: Text(
-                  letter,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: allowedLetters.contains(letter)
-                        ? Colors.black
-                        : Colors.grey,
+                  child: Text(
+                    letter,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: allowedLetters.contains(letter)
+                          ? Colors.black
+                          : Colors.grey,
+                    ),
                   ),
                 ),
               ),

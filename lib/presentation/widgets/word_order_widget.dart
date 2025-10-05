@@ -51,47 +51,53 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   }
 
   Widget _buildResultBox() {
-    if (!_showResult) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: _isCorrect
-            ? Colors.green.withOpacity(0.9)
-            : Colors.red.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            _isCorrect ? "Chính xác!" : "Chưa chính xác!",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          if (_isCorrect)
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _showResult = false;
-                  _userAnswerWords.clear();
-                });
-                widget.onNext(); // Chuyển sang câu hỏi mới
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.green,
-              ),
-              child: const Text(
-                "TIẾP TỤC",
-                style: TextStyle(fontWeight: FontWeight.bold),
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: _isCorrect ? Colors.green : Colors.red,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _isCorrect ? "Chính xác!" : "Chưa chính xác!",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
             ),
-        ],
+            const SizedBox(height: 10),
+            if (_isCorrect) ...[
+              Text(
+                widget.quizData.correctOrder.join(' '),
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _showResult = false;
+                    _userAnswerWords.clear();
+                  });
+                  widget.onNext(); // Chuyển sang câu hỏi mới
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.green,
+                ),
+                child: const Text(
+                  "TIẾP TỤC",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -208,13 +214,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
             ),
           ],
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 80.0),
-            child: _buildResultBox(),
-          ),
-        ),
+        if (_showResult) _buildResultBox(),
       ],
     );
   }

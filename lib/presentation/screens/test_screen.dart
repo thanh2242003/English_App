@@ -80,7 +80,7 @@ class _TestScreenState extends State<TestScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("🎉 Hoàn thành bài học!")));
+      ).showSnackBar(const SnackBar(content: Text("Hoàn thành bài học!")));
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const HomeScreen()),
         (route) => false,
@@ -132,19 +132,22 @@ class _TestScreenState extends State<TestScreen> {
     // Thêm +1 nếu chưa hoàn thành phần, để thanh tiến trình không bị lùi lại khi bắt đầu phần mới
     completedExercisesInLesson += _isPartCompleted ? _currentExercises.length : _currentExerciseIndex;
 
+    //completedExercisesInLesson += _currentExerciseIndex;
+
     double progress = totalExercisesInLesson > 0
         ? completedExercisesInLesson / totalExercisesInLesson
         : 0;
 
     // Lấy hướng dẫn từ bài tập hiện tại, trừ khi phần đã hoàn thành
     final String instruction = _isPartCompleted
-        ? "Làm tốt lắm!" // Hoặc bất kỳ văn bản nào bạn muốn
+        ? "Làm tốt lắm!"
         : _currentExercise.instruction;
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Thanh tiến trình
             Container(
@@ -178,10 +181,11 @@ class _TestScreenState extends State<TestScreen> {
                 child: _isPartCompleted
                     ? Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    //mainAxisAlignment: MainAxisAlignment.center,
+                    //crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "🎉 Hoàn thành ${lesson1.parts[_currentPartIndex].title}!",
+                        "Hoàn thành ${lesson1.parts[_currentPartIndex].title}!",
                         style: Theme.of(context)
                             .textTheme
                             .headlineSmall

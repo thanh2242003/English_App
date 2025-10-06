@@ -187,8 +187,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildUserInfoSection() {
-    return Card(
-      margin: EdgeInsets.all(40),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20,vertical: 40),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -196,12 +200,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             const Text(
               'Thông tin cá nhân',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(color: Colors.white,fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.person, size: 24),
+                const Icon(Icons.person, color: Colors.white, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -209,22 +213,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       const Text(
                         'Tên:',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),
                       ),
-                      Text(_userName, style: const TextStyle(fontSize: 16)),
+                      Text(_userName, style: const TextStyle(color:Colors.white,fontSize: 16)),
                     ],
                   ),
                 ),
                 IconButton(
                   onPressed: () => _showChangeNameDialog(),
-                  icon: const Icon(Icons.edit),
+                  icon: const Icon(Icons.edit, color: Colors.white,),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.email, size: 24),
+                const Icon(Icons.email,color: Colors.white, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -232,9 +236,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       const Text(
                         'Email:',
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),
                       ),
-                      Text(_userEmail, style: const TextStyle(fontSize: 16)),
+                      Text(_userEmail, style: const TextStyle(color: Colors.white,fontSize: 16)),
                     ],
                   ),
                 ),
@@ -254,7 +258,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           margin: EdgeInsets.symmetric(horizontal: 20),
           child: MyButton(
             data: 'Đổi mật khẩu',
-            backgroundColor: Colors.blue,
+            borderColor: Colors.transparent,
+            backgroundColor: Colors.white24,
             textColor: Colors.white,
             onTap: () => _showChangePasswordDialog(),
           ),
@@ -265,7 +270,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           margin: EdgeInsets.symmetric(horizontal: 20),
           child: MyButton(
             data: 'Đăng xuất',
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.white24,
+            borderColor: Colors.transparent,
             textColor: Colors.white,
             onTap: _signOut,
           ),
@@ -444,20 +450,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Cài đặt'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
-      backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Column(
           children: [
             _buildUserInfoSection(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildActionButtons(),
-            ),
+            _buildActionButtons(),
             const SizedBox(height: 20),
           ],
         ),

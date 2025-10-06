@@ -1,4 +1,5 @@
 import 'package:english_app/presentation/screens/test_screen.dart';
+import 'package:english_app/presentation/screens/settings_screen.dart';
 import 'package:english_app/presentation/widgets/lesson_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -180,7 +181,16 @@ class HomeScreen extends StatelessWidget {
               unselectedItemColor: Colors.grey,
               iconSize: 40,
               currentIndex: 0,
-              onTap: (index) {},
+              onTap: (index) {
+                if (index == 2) { // Settings tab
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                }
+              },
               items: const [
                 BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                 BottomNavigationBarItem(

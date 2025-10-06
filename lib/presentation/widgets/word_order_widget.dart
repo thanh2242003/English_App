@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import '../../models/word_order_quiz.dart';
+import 'result_popup_widget.dart';
 
 class WordOrderWidget extends StatefulWidget {
   final WordOrderQuiz quizData;
@@ -109,55 +110,43 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   }
 
   Widget _buildResultBox() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: _isCorrect ? Colors.green : Colors.red,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _isCorrect ? "Chính xác!" : "Chưa chính xác!",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+    if (_isCorrect) {
+      return ResultPopupWidget(
+        message: "Chính xác!",
+        correctAnswer: widget.quizData.correctOrder.join(' '),
+        englishText: widget.quizData.correctOrder.join(' '),
+        onNext: () {
+          setState(() {
+            _showResult = false;
+            _userAnswerWords.clear();
+          });
+          widget.onNext(); // Chuyển sang câu hỏi mới
+        },
+      );
+    } else {
+      // Khi sai, chỉ hiển thị text đơn giản
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            "Chưa chính xác!",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 10),
-            if (_isCorrect) ...[
-              Text(
-                widget.quizData.correctOrder.join(' '),
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _showResult = false;
-                    _userAnswerWords.clear();
-                  });
-                  widget.onNext(); // Chuyển sang câu hỏi mới
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.green,
-                ),
-                child: const Text(
-                  "TIẾP TỤC",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-              ),
-            ],
-          ],
+            textAlign: TextAlign.center,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override

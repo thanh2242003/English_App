@@ -115,22 +115,24 @@ class _TestScreenState extends State<TestScreen> {
           quizData: exerciseData as WordOrderQuiz,
           onNext: _goToNextExercise,
         );
-      // default:
-      //   return const Center(child: Text("Loại bài tập không xác định."));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // Tính toán tiến trình tổng thể của toàn bộ bài học
-    int totalExercisesInLesson =
-    lesson1.parts.fold(0, (prev, part) => prev + part.exercises.length);
+    int totalExercisesInLesson = lesson1.parts.fold(
+      0,
+      (prev, part) => prev + part.exercises.length,
+    );
     int completedExercisesInLesson = 0;
     for (int i = 0; i < _currentPartIndex; i++) {
       completedExercisesInLesson += lesson1.parts[i].exercises.length;
     }
     // Thêm +1 nếu chưa hoàn thành phần, để thanh tiến trình không bị lùi lại khi bắt đầu phần mới
-    completedExercisesInLesson += _isPartCompleted ? _currentExercises.length : _currentExerciseIndex;
+    completedExercisesInLesson += _isPartCompleted
+        ? _currentExercises.length
+        : _currentExerciseIndex;
 
     //completedExercisesInLesson += _currentExerciseIndex;
 
@@ -138,75 +140,78 @@ class _TestScreenState extends State<TestScreen> {
         ? completedExercisesInLesson / totalExercisesInLesson
         : 0;
 
-    // Lấy hướng dẫn từ bài tập hiện tại, trừ khi phần đã hoàn thành
-    final String instruction = _isPartCompleted
-        ? "Làm tốt lắm!"
-        : _currentExercise.instruction;
+    // Lấy hướng dẫn từ bài tập hiện tại
+    final String instruction = _currentExercise.instruction;
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Thanh tiến trình
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child: LinearProgressIndicator(
-                value: progress,
-                backgroundColor: const Color(0xFF3A3939),
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.yellow),
-                minHeight: 15,
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            // instruction text
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                instruction,
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Nội dung
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: _isPartCompleted
-                    ? Center(
-                  child: Column(
-                    //mainAxisAlignment: MainAxisAlignment.center,
-                    //crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Hoàn thành ${lesson1.parts[_currentPartIndex].title}!",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(color: Colors.white),
-                        textAlign: TextAlign.center,
+        child: !_isPartCompleted
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Thanh tiến trình
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: const Color(0xFF3A3939),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.yellow,
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _goToNextPart,
-                        child: const Text("Tiếp tục"),
-                      ),
-                    ],
+                      minHeight: 15,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                )
-                    : _buildExerciseContent(),
+                  // instruction text
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      instruction,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Nội dung
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: _buildExerciseContent(),
+                    ),
+                  ),
+                ],
+              )
+            // báo hoàn thành phần
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Hoàn thành ${lesson1.parts[_currentPartIndex].title}!",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _goToNextPart,
+                      child: const Text("Tiếp tục"),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
-
 }

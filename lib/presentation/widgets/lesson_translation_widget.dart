@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/models/translation_quiz.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:english_app/presentation/widgets/result_popup_widget.dart';
 
 class LessonTranslationWidget extends StatefulWidget {
   const LessonTranslationWidget({
@@ -132,69 +133,21 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
   }
 
   Widget _buildResultBox(BuildContext context) {
-    final color = isCorrect! ? Colors.green : Colors.red;
-    final message = isCorrect! ? "Chính xác!" : "Chưa chính xác";
-    final correctAnswer =
-        "${widget.question.englishWord} - ${widget.question.meaning}";
-
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  message,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                GestureDetector(
-                  onTap: () => _speak(widget.question.englishWord),
-                  child: Text(
-                    correctAnswer,
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: color,
-                    //minimumSize: const Size(double.infinity, 50),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      showResult = false;
-                      selectedOption = null;
-                      isCorrect = null;
-                    });
-                    widget.onNext(); // gọi callback để chuyển câu tiếp theo
-                  },
-                  child: const Text(
-                    "Tiếp theo",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-        ],
-      ),
+    final correctAnswer = "${widget.question.englishWord} - ${widget.question.meaning}";
+    
+    return ResultPopupWidget(
+      message: isCorrect! ? "Chính xác!" : "Chưa chính xác",
+      correctAnswer: correctAnswer,
+      backgroundColor: isCorrect! ? Colors.green : Colors.red,
+      englishText: widget.question.englishWord,
+      onNext: () {
+        setState(() {
+          showResult = false;
+          selectedOption = null;
+          isCorrect = null;
+        });
+        widget.onNext(); // gọi callback để chuyển câu tiếp theo
+      },
     );
   }
 }

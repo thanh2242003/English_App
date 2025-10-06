@@ -119,7 +119,7 @@ final lesson1 = Lesson(
     ),
     //Part 2
     Part(
-      title: "Phần 2: Sắp xếp từ",
+      title: "Phần 2",
       exercises: [
         ExerciseStep(
           type: ExerciseType.wordOrder,

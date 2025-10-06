@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:english_app/presentation/widgets/result_popup_widget.dart';
 import 'custom_keyboard.dart';
 
 class LessonTypingWidget extends StatefulWidget {
@@ -11,8 +12,8 @@ class LessonTypingWidget extends StatefulWidget {
     this.onNext,
   });
 
-  final String question;
-  final String answer;
+  final String question; // ví dụ: "Cà phê"
+  final String answer; // ví dụ: "coffee"
   final VoidCallback? onNext; // callback khi bấm "Tiếp theo"
 
   @override
@@ -42,7 +43,6 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
   }
   
   void _speak(String text) async {
-    await flutterTts.stop();
     await flutterTts.speak(text);
   }
   
@@ -87,7 +87,7 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
       });
     } else {
       //sai thì popup sai
-      Future.delayed(const Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 1000), () {
         setState(() {
           showResult = false;
           userInput = ''; // Xóa input để người dùng nhập lại
@@ -98,72 +98,46 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
 
   // Hiển thị popup kết quả
   Widget _buildResultBox(BuildContext context) {
-    final color = isCorrect ? Colors.green : Colors.red;
-    final message = isCorrect ? "Chính xác!" : "Chưa chính xác!";
     final correctAnswer = "${widget.answer} - ${widget.question}";
-
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  message,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (isCorrect) ...[
-                  Text(
-                    correctAnswer,
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  const SizedBox(height: 16),
-                  if (isCorrect) ...[
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: color,
-                        //minimumSize: const Size(50, 50),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          showResult = false;
-                          userInput = '';
-                          isCorrect = false;
-                        });
-                        widget.onNext?.call(); // Chuyển sang câu tiếp theo
-                      },
-                      child: const Text(
-                        "Tiếp theo",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ],
-            ),
+    
+    if (isCorrect) {
+      return ResultPopupWidget(
+        message: "Chính xác!",
+        correctAnswer: correctAnswer,
+        englishText: widget.answer,
+        onNext: () {
+          setState(() {
+            showResult = false;
+            userInput = '';
+            isCorrect = false;
+          });
+          widget.onNext?.call(); // Chuyển sang câu tiếp theo
+        },
+      );
+    } else {
+      // Khi sai, chỉ hiển thị text đơn giản
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(16),
           ),
-          SizedBox(height: 20),
-        ],
-      ),
-    );
+          child: Text(
+            "Chưa chính xác!",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
   }
 
   @override

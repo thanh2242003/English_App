@@ -21,7 +21,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // Controllers cho form đổi tên
   final TextEditingController _nameController = TextEditingController();
-  final _nameFormKey = GlobalKey<FormState>();
 
   // Controllers cho form đổi mật khẩu
   final TextEditingController _oldPasswordController = TextEditingController();
@@ -32,6 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool _isChangingName = false;
   bool _isChangingPassword = false;
+  bool _isEditingName = false; // Thêm state để quản lý việc chỉnh sửa tên
 
   // Visibility states for password fields
   bool _isOldPasswordVisible = false;
@@ -83,7 +83,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _updateUserName() async {
-    if (!_nameFormKey.currentState!.validate()) return;
+    final newName = _nameController.text.trim();
+    if (newName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập tên')),
+      );
+      return;
+    }
 
     setState(() {
       _isChangingName = true;
@@ -94,12 +100,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (user != null) {
         // Cập nhật trong Firestore
         await _firestore.collection('users').doc(user.uid).set({
-          'name': _nameController.text.trim(),
+          'name': newName,
           'email': _userEmail,
         }, SetOptions(merge: true));
 
         setState(() {
-          _userName = _nameController.text.trim();
+          _userName = newName;
+          _isEditingName = false; // Tắt chế độ chỉnh sửa
         });
 
         _nameController.clear();
@@ -119,6 +126,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } finally {
       setState(() {
         _isChangingName = false;
+      });
+    }
+  }
+
+  void _toggleNameEditing() {
+    if (_isEditingName) {
+      // Nếu đang chỉnh sửa, lưu thay đổi
+      _updateUserName();
+    } else {
+      // Nếu chưa chỉnh sửa, bắt đầu chỉnh sửa
+      setState(() {
+        _isEditingName = true;
+        _nameController.text = _userName;
       });
     }
   }
@@ -222,13 +242,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         'Tên:',
                         style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),
                       ),
-                      Text(_userName, style: const TextStyle(color:Colors.white,fontSize: 16)),
+                      _isEditingName 
+                        ? TextField(
+                            controller: _nameController,
+                            style: const TextStyle(color: Colors.white, fontSize: 16),
+                            decoration: const InputDecoration(
+                              hintText: 'Nhập tên mới',
+                              hintStyle: TextStyle(color: Colors.grey),
+                              border: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.purple),
+                              ),
+                            ),
+                          )
+                        : Text(_userName, style: const TextStyle(color:Colors.white,fontSize: 16)),
                     ],
                   ),
                 ),
                 IconButton(
-                  onPressed: () => _showChangeNameDialog(),
-                  icon: const Icon(Icons.edit, color: Colors.white,),
+                  onPressed: _isChangingName ? null : _toggleNameEditing,
+                  icon: _isChangingName 
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Icon(
+                        _isEditingName ? Icons.check : Icons.edit,
+                        color: Colors.white,
+                      ),
                 ),
               ],
             ),
@@ -287,47 +337,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showChangeNameDialog() {
-    _nameController.text = _userName;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Đổi tên'),
-        content: Form(
-          key: _nameFormKey,
-          child: TextFormField(
-            controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Tên mới',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Vui lòng nhập tên';
-              }
-              return null;
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: _isChangingName ? null : _updateUserName,
-            child: _isChangingName
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Cập nhật'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showChangePasswordDialog() {
     showDialog(
@@ -456,20 +465,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Cài đặt'),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF261543), Colors.black],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildUserInfoSection(),
-            _buildActionButtons(),
-            const SizedBox(height: 20),
-          ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text('Cài đặt'),
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildUserInfoSection(),
+              _buildActionButtons(),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

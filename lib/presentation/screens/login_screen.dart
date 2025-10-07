@@ -1,11 +1,10 @@
 import 'package:english_app/core/widgets/my_button.dart';
+import 'package:english_app/presentation/screens/main_screen.dart';
 import 'package:english_app/presentation/screens/register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (credential.user != null) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const MainScreen()),
           (Route<dynamic> route) => false,
         );
       }
@@ -55,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (userCred.user != null) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const MainScreen()),
           (Route<dynamic> route) => false,
         );
       }

@@ -2,6 +2,7 @@ import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/presentation/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -45,7 +46,11 @@ class WelcomeScreen extends StatelessWidget {
                 data: "Đi thôi",
                 backgroundColor: Colors.transparent,
                 textColor: Colors.white,
-                onTap: () {
+                onTap: () async {
+                  // Lưu trạng thái đã hiển thị welcome screen
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('welcome_shown', true);
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => OnboardingScreen()),
@@ -86,7 +91,12 @@ class WelcomeScreen extends StatelessWidget {
               child: MyButton(
                 data: "Tôi đã có tài khoản",
                 textColor: Colors.grey,
-                onTap: () {
+                onTap: () async {
+                  // Lưu trạng thái đã hiển thị welcome screen và hoàn thành onboarding
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('welcome_shown', true);
+                  await prefs.setBool('onboarding_completed', true);
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => LoginScreen()),

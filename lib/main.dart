@@ -1,6 +1,4 @@
-import 'package:english_app/presentation/screens/home_screen.dart';
-import 'package:english_app/presentation/screens/login_screen.dart';
-import 'package:english_app/presentation/screens/test_screen.dart';
+import 'package:english_app/core/navigation/app_navigator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -22,13 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home:
-          //const SplashScreen(),
-          Scaffold(
-            body: SafeArea(
-              child: const LoginScreen(),
-            ),
-          ),
+      home: const AppNavigator(),
     );
   }
 }

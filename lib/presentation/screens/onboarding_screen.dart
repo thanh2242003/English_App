@@ -1,6 +1,7 @@
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/onboarding_questions_data.dart';
 
@@ -15,22 +16,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int currentStep = 0;
   final int totalStep = 3;
 
-  void answerQuestion() {
+
+  void answerQuestion() async {
+    // Kiểm tra nếu chưa phải bước cuối cùng
     if (currentStep < totalStep - 1) {
       setState(() {
         currentStep++;
       });
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return LoginScreen();
-          },
-        ),
-      );
+    }
+    // Nếu là bước cuối cùng
+    else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboarding_completed', true);
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+        );
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

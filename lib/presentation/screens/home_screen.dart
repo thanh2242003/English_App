@@ -10,22 +10,13 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     double progress = 0.5;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF261543), Colors.black],
-              begin: Alignment.topCenter,
-              end: AlignmentGeometry.bottomCenter,
-            ),
-          ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: SingleChildScrollView(
-              child: Center(
-                child: Column(
-                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                     //mục tiêu ngày
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
@@ -176,38 +167,8 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // Bottom navigation
-            bottomNavigationBar: BottomNavigationBar(
-              backgroundColor: Colors.transparent,
-              selectedItemColor: Colors.purple,
-              unselectedItemColor: Colors.grey,
-              iconSize: 40,
-              currentIndex: 0,
-              onTap: (index) {
-                if (index == 2) { // Settings tab
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                }
-              },
-              items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.emoji_events),
-                  label: "Ranking",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.settings),
-                  label: "Settings",
-                ),
-              ],
+            // Bottom navigation đã được chuyển sang MainScreen
             ),
-          ),
-        ),
-      ),
-    );
+          );
   }
 }

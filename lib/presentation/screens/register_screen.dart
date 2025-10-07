@@ -32,182 +32,186 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          margin: EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(height: 65),
-              Text(
-                'Đăng ký',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 33,
-                ),
-              ),
-              SizedBox(height: 1),
-              //TextField Email
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  contentPadding: EdgeInsets.all(25),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
-                    // viền chưa focus
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2),
-                    // viền khi focus
-                    borderRadius: BorderRadius.circular(12),
+        child: SingleChildScrollView(
+          child: Container(
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                SizedBox(height: 65),
+                Text(
+                  'Đăng ký',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 33,
                   ),
                 ),
-              ),
-              //TextField Mật khẩu
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  hintText: 'Mật khẩu',
-                  contentPadding: EdgeInsets.all(25),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
-                    // viền chưa focus
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2),
-                    // viền khi focus
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                SizedBox(height: 40),
+                //TextField Email
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    contentPadding: EdgeInsets.all(25),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
+                      // viền chưa focus
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              TextField(
-                controller: _confirmController,
-                obscureText: _obscureConfirm,
-                decoration: InputDecoration(
-                  hintText: 'Nhập lại mật khẩu',
-                  contentPadding: EdgeInsets.all(25),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
-                    // viền chưa focus
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2),
-                    // viền khi focus
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureConfirm ? Icons.visibility : Icons.visibility_off,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2),
+                      // viền khi focus
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureConfirm = !_obscureConfirm;
-                      });
-                    },
                   ),
                 ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: MyButton(
-                  data: 'ĐĂNG KÝ',
-                  borderColor: Colors.blue,
-                  onTap: () async {
-                    final email = _emailController.text.trim();
-                    final password = _passwordController.text.trim();
-                    final confirm = _confirmController.text.trim();
-
-                    //  Kiểm tra rỗng
-                    if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Vui lòng điền đủ thông tin"),
-                        ),
-                      );
-                      return;
-                    }
-
-                    //  Kiểm tra mật khẩu khớp
-                    if (password != confirm) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Mật khẩu không khớp!")),
-                      );
-                      return;
-                    }
-
-                    try {
-                      //  Gọi AuthService
-                      final user = await AuthService().signUp(email, password);
-
-                      if (user != null) {
+                SizedBox(height: 20,),
+                //TextField Mật khẩu
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    hintText: 'Mật khẩu',
+                    contentPadding: EdgeInsets.all(25),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
+                      // viền chưa focus
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2),
+                      // viền khi focus
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20,),
+                TextField(
+                  controller: _confirmController,
+                  obscureText: _obscureConfirm,
+                  decoration: InputDecoration(
+                    hintText: 'Nhập lại mật khẩu',
+                    contentPadding: EdgeInsets.all(25),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
+                      // viền chưa focus
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2),
+                      // viền khi focus
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirm ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirm = !_obscureConfirm;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 40,),
+                SizedBox(
+                  width: double.infinity,
+                  child: MyButton(
+                    data: 'ĐĂNG KÝ',
+                    borderColor: Colors.blue,
+                    onTap: () async {
+                      final email = _emailController.text.trim();
+                      final password = _passwordController.text.trim();
+                      final confirm = _confirmController.text.trim();
+          
+                      //  Kiểm tra rỗng
+                      if (email.isEmpty || password.isEmpty || confirm.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text("Tạo tài khoản thành công!"),
+                            content: Text("Vui lòng điền đủ thông tin"),
                           ),
                         );
-
-                        //  Chuyển sang LoginScreen
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const LoginScreen(),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Đăng ký thất bại!")),
-                        );
+                        return;
                       }
-                    } catch (e) {
-                      //  Bắt lỗi Firebase hoặc lỗi khác
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Đăng ký thất bại: $e")),
-                      );
-                    }
-                  },
-                ),
-              ),
-              RichText(
-                text: TextSpan(
-                  text: 'Bạn đã có tài khoản?',
-                  style: TextStyle(color: Colors.black, fontSize: 18),
-                  children: [
-                    TextSpan(
-                      text: 'Đăng nhập ngay',
-                      style: TextStyle(color: Colors.blue, fontSize: 18),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return LoginScreen();
-                              },
+          
+                      //  Kiểm tra mật khẩu khớp
+                      if (password != confirm) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Mật khẩu không khớp!")),
+                        );
+                        return;
+                      }
+          
+                      try {
+                        //  Gọi AuthService
+                        final user = await AuthService().signUp(email, password);
+          
+                        if (user != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Tạo tài khoản thành công!"),
                             ),
                           );
-                        },
-                    ),
-                  ],
+          
+                          //  Chuyển sang LoginScreen
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LoginScreen(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Đăng ký thất bại!")),
+                          );
+                        }
+                      } catch (e) {
+                        //  Bắt lỗi Firebase hoặc lỗi khác
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Đăng ký thất bại: $e")),
+                        );
+                      }
+                    },
+                  ),
                 ),
-              ),
-              SizedBox(height: 65),
-            ],
+                SizedBox(height: 20,),
+                RichText(
+                  text: TextSpan(
+                    text: 'Bạn đã có tài khoản?',
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                    children: [
+                      TextSpan(
+                        text: 'Đăng nhập ngay',
+                        style: TextStyle(color: Colors.blue, fontSize: 18),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return LoginScreen();
+                                },
+                              ),
+                            );
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

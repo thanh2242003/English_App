@@ -1,3 +1,4 @@
+import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -175,7 +176,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       await _auth.signOut();
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/login');
+        // Điều hướng đến LoginScreen và xóa tất cả các màn hình trước đó
+        Navigator.of(context).pushAndRemoveUntil(
+          // Tạo một route mới cho màn hình đăng nhập
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          // Điều kiện để xóa: (route) => false sẽ xóa tất cả các route cũ
+              (Route<dynamic> route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {

@@ -30,7 +30,10 @@ class _MainScreenState extends State<MainScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: _screens[_currentIndex],
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.transparent,
           selectedItemColor: Colors.purple,

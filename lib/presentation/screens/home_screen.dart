@@ -3,11 +3,34 @@ import 'package:english_app/presentation/screens/settings_screen.dart';
 import 'package:english_app/presentation/widgets/lesson_widget.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
+  late PageController _pageController;
+  
+  @override
+  bool get wantKeepAlive => true; // Giữ trạng thái của widget này
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.8);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // Cần thiết cho AutomaticKeepAliveClientMixin
     double progress = 0.5;
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -115,7 +138,7 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(
                       height: 270,
                       child: PageView(
-                        controller: PageController(viewportFraction: 0.8),
+                        controller: _pageController,
                         children: [
                           LessonWidget(
                             imagePath:

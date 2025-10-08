@@ -1,4 +1,5 @@
 import 'package:english_app/core/navigation/app_navigator.dart';
+import 'package:english_app/data/offline_data_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize SQLite database with offline data
+  final offlineDataService = OfflineDataService();
+  await offlineDataService.initializeDataIfNeeded();
+  
   runApp(const MyApp());
 }
 

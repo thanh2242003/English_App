@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:english_app/data/exercise_data.dart';
+import 'package:english_app/data/offline_data_service.dart';
+import 'package:english_app/models/database_models.dart';
 import 'package:english_app/models/exercise_step.dart';
 import 'package:english_app/models/match_word_quiz.dart';
 import 'package:english_app/models/translation_quiz.dart';
@@ -25,10 +26,44 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   int _currentPartIndex = 0;
   int _currentExerciseIndex = 0;
   bool _isPartCompleted = false;
+  DatabaseLesson? _currentLesson;
+  bool _isLoading = true;
+  final OfflineDataService _dataService = OfflineDataService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLesson();
+  }
+
+  Future<void> _loadLesson() async {
+    try {
+      final lessons = await _dataService.getAllLessons();
+      if (lessons.isNotEmpty) {
+        setState(() {
+          _currentLesson = lessons.first;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading lesson: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   // Lấy danh sách các bài tập của phần hiện tại
-  List<ExerciseStep> get _currentExercises =>
-      lesson1.parts[_currentPartIndex].exercises;
+  List<ExerciseStep> get _currentExercises {
+    if (_currentLesson == null || _currentLesson!.parts.isEmpty) return [];
+    return _currentLesson!.parts[_currentPartIndex].exercises
+        .map((exercise) => exercise.toExerciseStep())
+        .toList();
+  }
 
   // Lấy bài tập hiện tại
   ExerciseStep get _currentExercise => _currentExercises[_currentExerciseIndex];
@@ -36,13 +71,13 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   // Hàm lưu tiến trình lên Firebase
   Future<void> saveProgress() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (user == null || _currentLesson == null) return;
 
     final userDocRef = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid);
     await userDocRef.set({
-      'currentLesson': lesson1.title,
+      'currentLesson': _currentLesson!.title,
       'currentPart': _currentPartIndex + 1,
       'lastCompletedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
@@ -63,7 +98,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   // Chuyển sang phần tiếp theo
   void _goToNextPart() {
     setState(() {
-      if (_currentPartIndex < lesson1.parts.length - 1) {
+      if (_currentLesson != null && _currentPartIndex < _currentLesson!.parts.length - 1) {
         _currentPartIndex++;
         _currentExerciseIndex = 0;
         _isPartCompleted = false;
@@ -122,21 +157,40 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+    }
+
+    if (_currentLesson == null || _currentLesson!.parts.isEmpty) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            'Không có dữ liệu bài học',
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
+        ),
+      );
+    }
+
     // Tính toán tiến trình tổng thể của toàn bộ bài học
-    int totalExercisesInLesson = lesson1.parts.fold(
+    int totalExercisesInLesson = _currentLesson!.parts.fold(
       0,
-          (prev, part) => prev + part.exercises.length,
+      (prev, part) => prev + part.exercises.length,
     );
     int completedExercisesInLesson = 0;
     for (int i = 0; i < _currentPartIndex; i++) {
-      completedExercisesInLesson += lesson1.parts[i].exercises.length;
+      completedExercisesInLesson += _currentLesson!.parts[i].exercises.length;
     }
     // Thêm +1 nếu chưa hoàn thành phần, để thanh tiến trình không bị lùi lại khi bắt đầu phần mới
     completedExercisesInLesson += _isPartCompleted
         ? _currentExercises.length
         : _currentExerciseIndex;
-
-    //completedExercisesInLesson += _currentExerciseIndex;
 
     double progress = totalExercisesInLesson > 0
         ? completedExercisesInLesson / totalExercisesInLesson
@@ -146,6 +200,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     final String instruction = _isPartCompleted
         ? "Làm tốt lắm!"
         : _currentExercise.instruction;
+
+    // Lấy tên phần hiện tại
+    final String currentPartTitle = _currentLesson!.parts[_currentPartIndex].title;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -200,7 +257,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             //crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hoàn thành ${lesson1.parts[_currentPartIndex].title}!",
+                "Hoàn thành $currentPartTitle!",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 22,

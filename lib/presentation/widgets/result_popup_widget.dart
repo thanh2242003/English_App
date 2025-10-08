@@ -34,7 +34,7 @@ class _ResultPopupWidgetState extends State<ResultPopupWidget> {
 
   void _initTts() async {
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.8);
+    await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
   }

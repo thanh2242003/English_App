@@ -35,37 +35,21 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   
   void _initTts() async {
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.8);
+    await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
   }
   
   void _speak(String text) async {
-    // Dừng bất kỳ phát âm nào đang diễn ra trước khi phát âm từ mới
     await flutterTts.stop();
-    
-    // Thêm delay nhỏ để đảm bảo stop hoàn tất
-    await Future.delayed(const Duration(milliseconds: 50));
-    
-    // Tăng tốc độ phát âm khi bấm vào từ
-    await flutterTts.setSpeechRate(1.2);
+    //await Future.delayed(const Duration(milliseconds: 50));
     await flutterTts.speak(text);
-    
-    // Khôi phục tốc độ bình thường sau khi phát âm xong
-    Future.delayed(const Duration(milliseconds: 200), () async {
-      await flutterTts.setSpeechRate(0.8);
-    });
   }
   
   void _speakSentence(String sentence) async {
     // Dừng bất kỳ phát âm nào đang diễn ra
     await flutterTts.stop();
-    
-    // Thêm delay nhỏ để đảm bảo stop hoàn tất
     await Future.delayed(const Duration(milliseconds: 100));
-    
-    // Phát âm câu với tốc độ bình thường
-    await flutterTts.setSpeechRate(0.8);
     await flutterTts.speak(sentence);
   }
   
@@ -86,7 +70,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
       });
       
       // Phát âm câu hoàn chỉnh khi đúng
-      Future.delayed(const Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 200), () {
         _speakSentence(correctAnswerString);
       });
     } else {
@@ -94,7 +78,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
         _isCorrect = false;
         _showResult = true;
       });
-      Timer(const Duration(milliseconds: 1500), () {
+      Timer(const Duration(milliseconds: 500), () {
         if (mounted) {
           _reset();
         }
@@ -194,8 +178,6 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                               foregroundColor: Colors.white,
                             ),
                             onPressed: () {
-                              // Phát âm từ tiếng Anh khi nhấn để xóa
-                              //_speak(word);
                               setState(() {
                                 _userAnswerWords.remove(word);
                               });

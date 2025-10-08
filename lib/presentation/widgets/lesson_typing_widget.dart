@@ -37,7 +37,7 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
   
   void _initTts() async {
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.9);
+    await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
   }
@@ -87,7 +87,7 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
       });
     } else {
       //sai thì popup sai
-      Future.delayed(const Duration(milliseconds: 1000), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         setState(() {
           showResult = false;
           userInput = ''; // Xóa input để người dùng nhập lại
@@ -152,10 +152,6 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text(
-                  "Nhập bản dịch cho:",
-                  style: TextStyle(color: Colors.white70, fontSize: 20),
-                ),
                 Text(
                   widget.question,
                   style: const TextStyle(

@@ -7,10 +7,34 @@ class LessonWidget extends StatelessWidget {
     required this.lessonName,
     required this.lessonTopic,
     required this.onPress,
+    this.isCompleted = false,
+    this.buttonText = "Bắt đầu",
   });
 
   final String imagePath, lessonName, lessonTopic;
   final VoidCallback onPress;
+  final bool isCompleted;
+  final String buttonText;
+
+  // Xác định màu nền nút
+  Color _getButtonColor() {
+    if (buttonText == "Thử lại") {
+      return Colors.orange;
+    } else if (buttonText == "Tiếp tục") {
+      return Colors.blue;
+    } else {
+      return Colors.white;
+    }
+  }
+
+  // Xác định màu chữ nút
+  Color _getButtonTextColor() {
+    if (buttonText == "Bắt đầu") {
+      return Colors.black;
+    } else {
+      return Colors.white;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +44,10 @@ class LessonWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: Color(0xFF2E2D2D), width: 10),
+        border: Border.all(
+          color: isCompleted ? Colors.green : Color(0xFF2E2D2D), 
+          width: 10
+        ),
         image: DecorationImage(
           image: AssetImage(imagePath),
           fit: BoxFit.cover,
@@ -75,17 +102,17 @@ class LessonWidget extends StatelessWidget {
             ),
           ),
           //const SizedBox(height: 15),
-          // Nút bắt đầu
+          // Nút bắt đầu/tiếp tục/thử lại
           ElevatedButton(
             onPressed: onPress,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
+              backgroundColor: _getButtonColor(),
+              foregroundColor: _getButtonTextColor(),
               shape: StadiumBorder(),
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             ),
-            child: const Text(
-              "Bắt đầu",
+            child: Text(
+              buttonText,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

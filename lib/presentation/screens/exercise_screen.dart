@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_app/data/offline_data_service.dart';
+import 'package:english_app/data/progress_service.dart';
 import 'package:english_app/models/database_models.dart';
 import 'package:english_app/models/exercise_step.dart';
 import 'package:english_app/models/match_word_quiz.dart';
 import 'package:english_app/models/translation_quiz.dart';
 import 'package:english_app/models/typing_quiz.dart';
+import 'package:english_app/models/user_progress.dart';
 import 'package:english_app/presentation/widgets/lesson_match_widget.dart';
 import 'package:english_app/presentation/widgets/lesson_translation_widget.dart';
 import 'package:english_app/presentation/widgets/lesson_typing_widget.dart';
@@ -29,6 +31,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   DatabaseLesson? _currentLesson;
   bool _isLoading = true;
   final OfflineDataService _dataService = OfflineDataService();
+  final ProgressService _progressService = ProgressService();
+  UserProgress? _userProgress;
 
   @override
   void initState() {
@@ -40,8 +44,30 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     try {
       final lessons = await _dataService.getAllLessons();
       if (lessons.isNotEmpty) {
+        _currentLesson = lessons.first;
+        
+        // Load tiến độ từ Firebase
+        _userProgress = await _progressService.getProgressForLesson(_currentLesson!.title);
+        
+        if (_userProgress != null) {
+          // Kiểm tra xem có phải lesson khác không
+          if (_userProgress!.lessonTitle != _currentLesson!.title) {
+            _showLessonChoiceDialog();
+            return;
+          }
+          
+          // Nếu có tiến độ đã lưu, tiếp tục từ đó
+          _currentPartIndex = _progressService.getNextPartIndex(_userProgress, _currentLesson!.parts.length);
+          _currentExerciseIndex = _progressService.getNextExerciseIndex(_userProgress);
+          _isPartCompleted = _progressService.isPartCompleted(_userProgress, _currentPartIndex);
+        } else {
+          // Nếu chưa có tiến độ, bắt đầu từ đầu
+          _currentPartIndex = 0;
+          _currentExerciseIndex = 0;
+          _isPartCompleted = false;
+        }
+        
         setState(() {
-          _currentLesson = lessons.first;
           _isLoading = false;
         });
       } else {
@@ -50,7 +76,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         });
       }
     } catch (e) {
-      print('Error loading lesson: $e');
       setState(() {
         _isLoading = false;
       });
@@ -70,17 +95,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   // Hàm lưu tiến trình lên Firebase
   Future<void> saveProgress() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || _currentLesson == null) return;
-
-    final userDocRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid);
-    await userDocRef.set({
-      'currentLesson': _currentLesson!.title,
-      'currentPart': _currentPartIndex + 1,
-      'lastCompletedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    if (_currentLesson == null) return;
+    
+    await _progressService.saveProgress(
+      lessonTitle: _currentLesson!.title,
+      currentPartIndex: _currentPartIndex,
+      currentExerciseIndex: _currentExerciseIndex,
+      isPartCompleted: _isPartCompleted,
+      completedParts: _userProgress?.completedParts ?? {},
+    );
   }
 
   // Chuyển sang bài tập tiếp theo
@@ -88,11 +111,42 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     setState(() {
       if (_currentExerciseIndex < _currentExercises.length - 1) {
         _currentExerciseIndex++;
+        // Không lưu tiến độ sau mỗi exercise
       } else {
         // Đã hoàn thành tất cả các bài tập trong phần này
-        _isPartCompleted = true;
+        // Kiểm tra nếu đang ở part 2 (index = 1) thì hoàn thành bài học luôn
+        if (_currentPartIndex == 1) {
+          _markPartCompleted();
+        } else {
+          _isPartCompleted = true;
+          _markPartCompleted();
+        }
       }
     });
+  }
+
+  // Đánh dấu part đã hoàn thành
+  Future<void> _markPartCompleted() async {
+    if (_currentLesson == null) return;
+    
+    // Đánh dấu part đã hoàn thành
+    await _progressService.markPartCompleted(
+      lessonTitle: _currentLesson!.title,
+      partIndex: _currentPartIndex,
+      totalExercises: _currentExercises.length,
+      correctAnswers: _currentExercises.length, // Giả sử tất cả đều đúng
+    );
+    
+    // Lưu tiến độ với trạng thái part đã hoàn thành
+    await saveProgress();
+    
+    // Cập nhật userProgress local
+    _userProgress = await _progressService.getProgressForLesson(_currentLesson!.title);
+    
+    // Kiểm tra nếu đang ở part 2 (index = 1) thì hoàn thành bài học luôn
+    if (_currentPartIndex == 1) {
+      _handleLessonCompletion();
+    }
   }
 
   // Chuyển sang phần tiếp theo
@@ -102,6 +156,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         _currentPartIndex++;
         _currentExerciseIndex = 0;
         _isPartCompleted = false;
+        // Không cần lưu tiến độ ở đây vì đã lưu trong _markPartCompleted
       } else {
         // Đã hoàn thành tất cả các phần, kết thúc bài học
         _handleLessonCompletion();
@@ -110,7 +165,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   // Xử lý khi hoàn thành toàn bộ bài học
-  void _handleLessonCompletion() {
+  void _handleLessonCompletion() async {
+    if (_currentLesson != null) {
+      // Đánh dấu lesson đã hoàn thành
+      await _progressService.markLessonCompleted(_currentLesson!.title);
+    }
+    
     saveProgress();
     if (mounted) {
       ScaffoldMessenger.of(
@@ -120,6 +180,117 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         MaterialPageRoute(builder: (context) => const HomeScreen()),
             (route) => false,
       );
+    }
+  }
+
+  // Hiển thị dialog chọn lesson
+  void _showLessonChoiceDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text(
+            'Tiếp tục bài học',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Text(
+            'Bạn đang có tiến độ của "${_userProgress?.lessonTitle}". Bạn muốn tiếp tục bài học đó hay bắt đầu "${_currentLesson?.title}"?',
+            style: const TextStyle(color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Tiếp tục bài học cũ
+                _currentLesson = DatabaseLesson(
+                  title: _userProgress!.lessonTitle,
+                  createdAt: DateTime.now().toIso8601String(),
+                  parts: [], // Sẽ load từ database
+                );
+                _loadLesson();
+              },
+              child: const Text(
+                'Tiếp tục bài cũ',
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Bắt đầu bài học mới
+                _progressService.resetProgressForLesson(_currentLesson!.title);
+                _currentPartIndex = 0;
+                _currentExerciseIndex = 0;
+                _isPartCompleted = false;
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+              child: const Text(
+                'Bắt đầu bài mới',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Xử lý khi người dùng muốn thoát lesson
+  void _exitLesson() async {
+    try {
+      // Chỉ lưu tiến độ nếu đang trong part (chưa hoàn thành)
+      if (!_isPartCompleted) {
+        await saveProgress();
+      }
+      
+      if (mounted) {
+        // Hiển thị dialog xác nhận
+        bool? shouldExit = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.grey[900],
+              title: const Text(
+                'Thoát bài học',
+                style: TextStyle(color: Colors.white),
+              ),
+              content: const Text(
+                'Bạn có chắc chắn muốn thoát? Tiến độ sẽ được lưu và bạn có thể tiếp tục sau.',
+                style: TextStyle(color: Colors.white),
+              ),
+              actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text(
+                  'Hủy',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text(
+                  'Thoát',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+              ],
+            );
+          },
+        );
+
+        if (shouldExit == true && mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -266,9 +437,29 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _goToNextPart,
-                child: const Text("Tiếp tục"),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: _goToNextPart,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                    child: const Text("Tiếp tục"),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: _exitLesson,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                    child: const Text("Thoát"),
+                  ),
+                ],
               ),
             ],
           ),

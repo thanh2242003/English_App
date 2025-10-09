@@ -51,10 +51,15 @@ class LessonWidget extends StatelessWidget {
         image: DecorationImage(
           image: AssetImage(imagePath),
           fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.4),
-            BlendMode.darken,
-          ),
+          colorFilter: isCompleted 
+            ? ColorFilter.mode(
+                Colors.green.withOpacity(0.3),
+                BlendMode.overlay,
+              )
+            : ColorFilter.mode(
+                Colors.black.withOpacity(0.4),
+                BlendMode.darken,
+              ),
         ),
       ),
       child: Column(

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_app/data/offline_data_service.dart';
 import 'package:english_app/data/progress_service.dart';
 import 'package:english_app/models/database_models.dart';
@@ -10,12 +9,10 @@ import 'package:english_app/models/user_progress.dart';
 import 'package:english_app/presentation/widgets/lesson_match_widget.dart';
 import 'package:english_app/presentation/widgets/lesson_translation_widget.dart';
 import 'package:english_app/presentation/widgets/lesson_typing_widget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/word_order_quiz.dart';
 import '../widgets/word_order_widget.dart';
-import 'home_screen.dart';
 
 class ExerciseScreen extends StatefulWidget {
   const ExerciseScreen({super.key});
@@ -176,10 +173,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Hoàn thành bài học!")));
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-            (route) => false,
-      );
+      Navigator.of(context).pop();
     }
   }
 
@@ -220,7 +214,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
                 // Bắt đầu bài học mới
-                _progressService.resetProgressForLesson(_currentLesson!.title);
+                _progressService.restartLessonProgress(_currentLesson!.title);
                 _currentPartIndex = 0;
                 _currentExerciseIndex = 0;
                 _isPartCompleted = false;

@@ -1,4 +1,3 @@
-import 'package:english_app/core/navigation/app_navigator.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

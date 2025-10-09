@@ -1,4 +1,3 @@
-import 'package:english_app/data/auth_service.dart';
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:english_app/presentation/screens/main_screen.dart';
 import 'package:english_app/presentation/screens/onboarding_screen.dart';
@@ -16,7 +15,6 @@ class AppNavigator extends StatefulWidget {
 }
 
 class _AppNavigatorState extends State<AppNavigator> {
-  final AuthService _authService = AuthService();
   bool _isLoading = true;
   Widget? _initialScreen;
 

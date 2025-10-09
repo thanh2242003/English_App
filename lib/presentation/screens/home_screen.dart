@@ -1,8 +1,6 @@
 import 'package:english_app/data/progress_service.dart';
 import 'package:english_app/models/user_progress.dart';
 import 'package:english_app/presentation/screens/exercise_screen.dart';
-import 'package:english_app/presentation/screens/test_screen.dart';
-import 'package:english_app/presentation/screens/settings_screen.dart';
 import 'package:english_app/presentation/widgets/lesson_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -13,15 +11,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
+class _HomeScreenState extends State<HomeScreen> {
   late PageController _pageController;
   final ProgressService _progressService = ProgressService();
   UserProgress? _userProgress;
   List<String> _completedLessons = [];
   bool _isLoading = true;
-  
-  @override
-  bool get wantKeepAlive => true; // Giữ trạng thái của widget này
 
   @override
   void initState() {
@@ -49,11 +44,16 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     try {
       _userProgress = await _progressService.getCurrentProgress();
       _completedLessons = await _progressService.getCompletedLessons();
-      setState(() {});
+      setState(() {
+        _isLoading = false;
+      });
     } catch (e) {
-      // Error refreshing progress
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+
 
   @override
   void dispose() {
@@ -68,25 +68,22 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     _refreshProgress();
   }
 
-  // Tính toán tiến độ tổng thể
+
+  // Tính toán tiến độ tổng thể - chỉ tính khi hoàn thành toàn bộ bài học
   double _calculateOverallProgress() {
     if (_userProgress == null) return 0.0;
     
-    // Giả sử mỗi lesson có 3 parts
-    int totalParts = 3;
-    int completedParts = _userProgress!.completedParts.length;
+    // Tính tiến độ dựa trên số lesson đã hoàn thành hoàn toàn
+    int totalLessons = 3; // Có 3 bài học
+    int completedLessons = _completedLessons.length;
     
-    // Nếu đang học part hiện tại và đã hoàn thành
-    if (_userProgress!.isPartCompleted) {
-      completedParts++;
-    }
-    
-    return completedParts / totalParts;
+    return completedLessons / totalLessons;
   }
 
   // Kiểm tra lesson đã hoàn thành chưa
   bool _isLessonCompleted(String lessonName) {
-    return _completedLessons.contains(lessonName);
+    String firebaseLessonName = _mapLessonNameToFirebase(lessonName);
+    return _completedLessons.contains(firebaseLessonName);
   }
 
   // Lấy trạng thái lesson để hiển thị text nút phù hợp
@@ -94,12 +91,19 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     // Map tên lesson từ HomeScreen sang Firebase
     String firebaseLessonName = _mapLessonNameToFirebase(lessonName);
     
+    // Nếu lesson đã hoàn thành hoàn toàn
     if (_isLessonCompleted(firebaseLessonName)) {
       return "Thử lại";
     }
     
+    // Nếu có tiến độ cho lesson này (đã bắt đầu học)
     if (_userProgress != null && _userProgress!.lessonTitle == firebaseLessonName) {
-      return "Tiếp tục";
+      // Kiểm tra nếu đang có part đã hoàn thành hoặc đang trong quá trình học
+      if (_userProgress!.completedParts.isNotEmpty || 
+          _userProgress!.currentPartIndex > 0 || 
+          _userProgress!.isPartCompleted) {
+        return "Tiếp tục";
+      }
     }
     
     return "Bắt đầu";
@@ -121,7 +125,6 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Cần thiết cho AutomaticKeepAliveClientMixin
     
     if (_isLoading) {
       return const Scaffold(
@@ -249,16 +252,19 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                             isCompleted: _isLessonCompleted('Bài học 1'),
                             buttonText: _getLessonButtonText('Bài học 1'),
                             onPress: () async {
-                              // Nếu là "Thử lại", reset tiến độ trước
+                              // Nếu là "Thử lại", restart tiến độ học nhưng giữ trạng thái đã hoàn thành
                               if (_getLessonButtonText('Bài học 1') == "Thử lại") {
-                                await _progressService.resetProgressForLesson(_mapLessonNameToFirebase('Bài học 1'));
+                                await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 1'));
                               }
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const ExerciseScreen(),
                                 ),
-                              );
+                              ).then((_) {
+                                // Refresh progress khi quay lại từ exercise screen
+                                _refreshProgress();
+                              });
                             },
                           ),
                           LessonWidget(
@@ -269,16 +275,19 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                             isCompleted: _isLessonCompleted('Bài học 2'),
                             buttonText: _getLessonButtonText('Bài học 2'),
                             onPress: () async {
-                              // Nếu là "Thử lại", reset tiến độ trước
+                              // Nếu là "Thử lại", restart tiến độ học nhưng giữ trạng thái đã hoàn thành
                               if (_getLessonButtonText('Bài học 2') == "Thử lại") {
-                                await _progressService.resetProgressForLesson(_mapLessonNameToFirebase('Bài học 2'));
+                                await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 2'));
                               }
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const ExerciseScreen(),
                                 ),
-                              );
+                              ).then((_) {
+                                // Refresh progress khi quay lại từ exercise screen
+                                _refreshProgress();
+                              });
                             },
                           ),
                           LessonWidget(
@@ -289,16 +298,19 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                             isCompleted: _isLessonCompleted('Bài học 3'),
                             buttonText: _getLessonButtonText('Bài học 3'),
                             onPress: () async {
-                              // Nếu là "Thử lại", reset tiến độ trước
+                              // Nếu là "Thử lại", restart tiến độ học nhưng giữ trạng thái đã hoàn thành
                               if (_getLessonButtonText('Bài học 3') == "Thử lại") {
-                                await _progressService.resetProgressForLesson(_mapLessonNameToFirebase('Bài học 3'));
+                                await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 3'));
                               }
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const ExerciseScreen(),
                                 ),
-                              );
+                              ).then((_) {
+                                // Refresh progress khi quay lại từ exercise screen
+                                _refreshProgress();
+                              });
                             },
                           ),
                         ],

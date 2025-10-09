@@ -135,19 +135,25 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
   Widget _buildResultBox(BuildContext context) {
     final correctAnswer = "${widget.question.englishWord} - ${widget.question.meaning}";
     
-    return ResultPopupWidget(
-      message: isCorrect! ? "Chính xác!" : "Chưa chính xác",
-      correctAnswer: correctAnswer,
-      backgroundColor: isCorrect! ? Colors.green : Colors.red,
-      englishText: widget.question.englishWord,
-      onNext: () {
-        setState(() {
-          showResult = false;
-          selectedOption = null;
-          isCorrect = null;
-        });
-        widget.onNext(); // gọi callback để chuyển câu tiếp theo
-      },
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ResultPopupWidget(
+          message: isCorrect! ? "Chính xác!" : "Chưa chính xác",
+          correctAnswer: correctAnswer,
+          backgroundColor: isCorrect! ? Colors.green : Colors.red,
+          englishText: widget.question.englishWord,
+          onNext: () {
+            setState(() {
+              showResult = false;
+              selectedOption = null;
+              isCorrect = null;
+            });
+            widget.onNext(); // gọi callback để chuyển câu tiếp theo
+          },
+        ),
+        SizedBox(height: 100,),
+      ],
     );
   }
 }

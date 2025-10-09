@@ -142,8 +142,9 @@ class ProgressService {
     return 0;
   }
 
-  // Reset tiến độ cho một lesson
-  Future<void> resetProgressForLesson(String lessonTitle) async {
+
+  // Reset tiến độ học nhưng giữ lại trạng thái đã hoàn thành lesson
+  Future<void> restartLessonProgress(String lessonTitle) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
@@ -157,6 +158,7 @@ class ProgressService {
       'isPartCompleted': false,
       'completedParts': {},
       'lastUpdated': FieldValue.serverTimestamp(),
+      // KHÔNG xóa completedLessons - giữ lại trạng thái đã hoàn thành
     });
   }
 

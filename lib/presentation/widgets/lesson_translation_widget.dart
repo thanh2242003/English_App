@@ -12,7 +12,7 @@ class LessonTranslationWidget extends StatefulWidget {
   });
 
   final TranslationQuiz question;
-  final VoidCallback onNext; // callback khi nhấn "Tiếp theo"
+  final VoidCallback onNext;
 
   @override
   State<LessonTranslationWidget> createState() =>
@@ -31,7 +31,7 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
   void initState() {
     super.initState();
     _initTts();
-    // Phát âm từ tiếng Anh khi vừa vào màn hình
+    // Phát âm từ tiếng anh khi vừa vào màn hình
     Future.delayed(const Duration(milliseconds: 200), () {
       _speak(widget.question.englishWord);
     });
@@ -40,7 +40,7 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
   @override
   void didUpdateWidget(LessonTranslationWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Phát âm từ tiếng Anh mới khi widget được cập nhật (chuyển sang từ mới)
+    // Phát âm từ tiếng anh mới chuyển sang từ mới
     if (oldWidget.question.englishWord != widget.question.englishWord) {
       Future.delayed(const Duration(milliseconds: 300), () {
         _speak(widget.question.englishWord);
@@ -149,7 +149,7 @@ class _LessonTranslationWidgetState extends State<LessonTranslationWidget> {
               selectedOption = null;
               isCorrect = null;
             });
-            widget.onNext(); // gọi callback để chuyển câu tiếp theo
+            widget.onNext();
           },
         ),
         SizedBox(height: 100,),

@@ -2,7 +2,6 @@ import 'package:english_app/core/navigation/app_navigator.dart';
 import 'package:english_app/data/offline_data_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
 import 'firebase_options.dart';
 
 void main() async {
@@ -11,7 +10,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize SQLite database with offline data
+  // SQLite
   final offlineDataService = OfflineDataService();
   await offlineDataService.initializeDataIfNeeded();
   
@@ -21,7 +20,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

@@ -8,7 +8,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // SplashScreen giờ chỉ hiển thị UI, AppNavigator sẽ xử lý navigation
 
   @override
   Widget build(BuildContext context) {

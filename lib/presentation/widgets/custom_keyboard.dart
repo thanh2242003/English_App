@@ -17,7 +17,6 @@ class CustomKeyboard extends StatelessWidget {
     // Lấy ra danh sách ký tự hợp lệ
     final allowedLetters = correctWord.toLowerCase().split('').toSet();
 
-    // Bố cục 3 hàng bàn phím
     const keyboardRows = [
       "qwertyuiop",
       "asdfghjkl",
@@ -26,7 +25,6 @@ class CustomKeyboard extends StatelessWidget {
 
     return Container(
       color: Colors.transparent,
-      //padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

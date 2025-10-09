@@ -24,7 +24,7 @@ class DatabaseLesson {
       id: map['id'],
       title: map['title'],
       createdAt: map['created_at'],
-      parts: [], // Parts sẽ được load riêng
+      parts: [],
     );
   }
 
@@ -36,22 +36,6 @@ class DatabaseLesson {
     };
   }
 
-  // Convert từ Lesson model cũ
-  factory DatabaseLesson.fromLesson(Lesson lesson) {
-    return DatabaseLesson(
-      title: lesson.title,
-      createdAt: DateTime.now().toIso8601String(),
-      parts: lesson.parts.map((part) => DatabasePart.fromPart(part)).toList(),
-    );
-  }
-
-  // Convert về Lesson model cũ
-  Lesson toLesson() {
-    return Lesson(
-      title: title,
-      parts: parts.map((part) => part.toPart()).toList(),
-    );
-  }
 }
 
 // Database model cho Part
@@ -76,7 +60,7 @@ class DatabasePart {
       lessonId: map['lesson_id'],
       title: map['title'],
       orderIndex: map['order_index'],
-      exercises: [], // Exercises sẽ được load riêng
+      exercises: [],
     );
   }
 
@@ -89,22 +73,6 @@ class DatabasePart {
     };
   }
 
-  // Convert từ Part model cũ
-  factory DatabasePart.fromPart(Part part) {
-    return DatabasePart(
-      title: part.title,
-      orderIndex: 0, // Sẽ được set khi insert
-      exercises: part.exercises.map((exercise) => DatabaseExercise.fromExerciseStep(exercise)).toList(),
-    );
-  }
-
-  // Convert về Part model cũ
-  Part toPart() {
-    return Part(
-      title: title,
-      exercises: exercises.map((exercise) => exercise.toExerciseStep()).toList(),
-    );
-  }
 }
 
 // Database model cho Exercise
@@ -151,54 +119,6 @@ class DatabaseExercise {
     };
   }
 
-  // Convert từ ExerciseStep model cũ
-  factory DatabaseExercise.fromExerciseStep(ExerciseStep exerciseStep) {
-    String data = '';
-    DatabaseExerciseData? exerciseData;
-
-    switch (exerciseStep.type) {
-      case ExerciseType.matchWords:
-        final matchQuiz = exerciseStep.data as MatchWordsQuiz;
-        data = jsonEncode(matchQuiz.wordMap);
-        exerciseData = DatabaseMatchWords.fromMatchWordsQuiz(matchQuiz);
-        break;
-      case ExerciseType.chooseTranslation:
-        final translationQuiz = exerciseStep.data as TranslationQuiz;
-        data = jsonEncode({
-          'imagePath': translationQuiz.imagePath,
-          'meaning': translationQuiz.meaning,
-          'englishWord': translationQuiz.englishWord,
-          'options': translationQuiz.options,
-        });
-        exerciseData = DatabaseTranslationQuiz.fromTranslationQuiz(translationQuiz);
-        break;
-      case ExerciseType.typingQuiz:
-        final typingQuiz = exerciseStep.data as TypingQuiz;
-        data = jsonEncode({
-          'vietnamese': typingQuiz.vietnamese,
-          'english': typingQuiz.english,
-        });
-        exerciseData = DatabaseTypingQuiz.fromTypingQuiz(typingQuiz);
-        break;
-      case ExerciseType.wordOrder:
-        final wordOrderQuiz = exerciseStep.data as WordOrderQuiz;
-        data = jsonEncode({
-          'vietnamese': wordOrderQuiz.vietnamese,
-          'words': wordOrderQuiz.words,
-          'correctOrder': wordOrderQuiz.correctOrder,
-        });
-        exerciseData = DatabaseWordOrderQuiz.fromWordOrderQuiz(wordOrderQuiz);
-        break;
-    }
-
-    return DatabaseExercise(
-      type: exerciseStep.type,
-      instruction: exerciseStep.instruction,
-      data: data,
-      orderIndex: 0, // Sẽ được set khi insert
-      exerciseData: exerciseData,
-    );
-  }
 
   // Convert về ExerciseStep model cũ
   ExerciseStep toExerciseStep() {
@@ -256,9 +176,6 @@ class DatabaseMatchWords extends DatabaseExerciseData {
     required this.wordMap,
   });
 
-  factory DatabaseMatchWords.fromMatchWordsQuiz(MatchWordsQuiz quiz) {
-    return DatabaseMatchWords(wordMap: quiz.wordMap);
-  }
 
   MatchWordsQuiz toMatchWordsQuiz() {
     return MatchWordsQuiz(wordMap: wordMap);
@@ -281,14 +198,6 @@ class DatabaseTranslationQuiz extends DatabaseExerciseData {
     required this.options,
   });
 
-  factory DatabaseTranslationQuiz.fromTranslationQuiz(TranslationQuiz quiz) {
-    return DatabaseTranslationQuiz(
-      imagePath: quiz.imagePath,
-      meaning: quiz.meaning,
-      englishWord: quiz.englishWord,
-      options: quiz.options,
-    );
-  }
 
   TranslationQuiz toTranslationQuiz() {
     return TranslationQuiz(
@@ -312,12 +221,6 @@ class DatabaseTypingQuiz extends DatabaseExerciseData {
     required this.english,
   });
 
-  factory DatabaseTypingQuiz.fromTypingQuiz(TypingQuiz quiz) {
-    return DatabaseTypingQuiz(
-      vietnamese: quiz.vietnamese,
-      english: quiz.english,
-    );
-  }
 
   TypingQuiz toTypingQuiz() {
     return TypingQuiz(
@@ -341,13 +244,6 @@ class DatabaseWordOrderQuiz extends DatabaseExerciseData {
     required this.correctOrder,
   });
 
-  factory DatabaseWordOrderQuiz.fromWordOrderQuiz(WordOrderQuiz quiz) {
-    return DatabaseWordOrderQuiz(
-      vietnamese: quiz.vietnamese,
-      words: quiz.words,
-      correctOrder: quiz.correctOrder,
-    );
-  }
 
   WordOrderQuiz toWordOrderQuiz() {
     return WordOrderQuiz(

@@ -32,6 +32,5 @@ class AuthService {
     await _auth.signOut();
   }
 
-  // Stream user để theo dõi trạng thái login
   Stream<User?> get user => _auth.authStateChanges();
 }

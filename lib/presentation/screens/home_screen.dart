@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
-  // Tính toán tiến độ tổng thể - chỉ tính khi hoàn thành toàn bộ bài học
+  // Tính toán tiến độ tổng thể
   double _calculateOverallProgress() {
     if (_userProgress == null) return 0.0;
     
@@ -86,19 +86,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return _completedLessons.contains(firebaseLessonName);
   }
 
-  // Lấy trạng thái lesson để hiển thị text nút phù hợp
+  // Lấy trạng thái lesson để hiển thị text nút
   String _getLessonButtonText(String lessonName) {
-    // Map tên lesson từ HomeScreen sang Firebase
     String firebaseLessonName = _mapLessonNameToFirebase(lessonName);
-    
-    // Nếu lesson đã hoàn thành hoàn toàn
     if (_isLessonCompleted(firebaseLessonName)) {
       return "Thử lại";
     }
     
-    // Nếu có tiến độ cho lesson này (đã bắt đầu học)
+    // đã bắt đầu học
     if (_userProgress != null && _userProgress!.lessonTitle == firebaseLessonName) {
-      // Kiểm tra nếu đang có part đã hoàn thành hoặc đang trong quá trình học
+      // Kiểm tra nếu đang có part đã hoàn thành
       if (_userProgress!.completedParts.isNotEmpty || 
           _userProgress!.currentPartIndex > 0 || 
           _userProgress!.isPartCompleted) {
@@ -142,7 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Center(
             child: Column(
-              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                     //mục tiêu ngày
                     Container(
@@ -252,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             isCompleted: _isLessonCompleted('Bài học 1'),
                             buttonText: _getLessonButtonText('Bài học 1'),
                             onPress: () async {
-                              // Nếu là "Thử lại", restart tiến độ học nhưng giữ trạng thái đã hoàn thành
+                              // Nếu thử lại thì restart bài học
                               if (_getLessonButtonText('Bài học 1') == "Thử lại") {
                                 await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 1'));
                               }
@@ -275,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             isCompleted: _isLessonCompleted('Bài học 2'),
                             buttonText: _getLessonButtonText('Bài học 2'),
                             onPress: () async {
-                              // Nếu là "Thử lại", restart tiến độ học nhưng giữ trạng thái đã hoàn thành
+                              // Nếu thử lại thì restart bài học
                               if (_getLessonButtonText('Bài học 2') == "Thử lại") {
                                 await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 2'));
                               }
@@ -298,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             isCompleted: _isLessonCompleted('Bài học 3'),
                             buttonText: _getLessonButtonText('Bài học 3'),
                             onPress: () async {
-                              // Nếu là "Thử lại", restart tiến độ học nhưng giữ trạng thái đã hoàn thành
+                              // Nếu thử lại thì restart bài học
                               if (_getLessonButtonText('Bài học 3') == "Thử lại") {
                                 await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 3'));
                               }

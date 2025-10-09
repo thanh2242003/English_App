@@ -29,7 +29,6 @@ class ProgressService {
       'currentPartIndex': currentPartIndex,
       'currentExerciseIndex': currentExerciseIndex,
       'isPartCompleted': isPartCompleted,
-      'lastUpdated': FieldValue.serverTimestamp(),
       'completedParts': completedParts ?? {},
     };
 
@@ -56,14 +55,10 @@ class ProgressService {
 
     final partCompletion = {
       'partIndex': partIndex,
-      'completedAt': FieldValue.serverTimestamp(),
-      'totalExercises': totalExercises,
-      'correctAnswers': correctAnswers,
     };
 
     await progressRef.update({
       'completedParts.$partIndex': partCompletion,
-      'lastUpdated': FieldValue.serverTimestamp(),
     });
   }
 
@@ -138,12 +133,12 @@ class ProgressService {
   int getNextExerciseIndex(UserProgress? progress) {
     if (progress == null) return 0;
     
-    // Luôn bắt đầu từ exercise đầu tiên của part
+    // bắt đầu từ exercise đầu tiên của part
     return 0;
   }
 
 
-  // Reset tiến độ học nhưng giữ lại trạng thái đã hoàn thành lesson
+  // Reset tiến độ học
   Future<void> restartLessonProgress(String lessonTitle) async {
     final user = _auth.currentUser;
     if (user == null) return;
@@ -157,8 +152,6 @@ class ProgressService {
       'currentExerciseIndex': 0,
       'isPartCompleted': false,
       'completedParts': {},
-      'lastUpdated': FieldValue.serverTimestamp(),
-      // KHÔNG xóa completedLessons - giữ lại trạng thái đã hoàn thành
     });
   }
 
@@ -195,7 +188,6 @@ class ProgressService {
 
     await progressRef.update({
       'completedLessons': FieldValue.arrayUnion([lessonTitle]),
-      'lastUpdated': FieldValue.serverTimestamp(),
     });
   }
 }

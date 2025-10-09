@@ -153,7 +153,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         _currentPartIndex++;
         _currentExerciseIndex = 0;
         _isPartCompleted = false;
-        // Không cần lưu tiến độ ở đây vì đã lưu trong _markPartCompleted
       } else {
         // Đã hoàn thành tất cả các phần, kết thúc bài học
         _handleLessonCompletion();

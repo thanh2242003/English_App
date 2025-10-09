@@ -12,9 +12,9 @@ class LessonTypingWidget extends StatefulWidget {
     this.onNext,
   });
 
-  final String question; // ví dụ: "Cà phê"
-  final String answer; // ví dụ: "coffee"
-  final VoidCallback? onNext; // callback khi bấm "Tiếp theo"
+  final String question;
+  final String answer;
+  final VoidCallback? onNext;
 
   @override
   State<LessonTypingWidget> createState() => _LessonTypingWidgetState();
@@ -90,7 +90,7 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
       Future.delayed(const Duration(milliseconds: 500), () {
         setState(() {
           showResult = false;
-          userInput = ''; // Xóa input để người dùng nhập lại
+          userInput = ''; // Xóa input để nhập lại
         });
       });
     }
@@ -111,11 +111,11 @@ class _LessonTypingWidgetState extends State<LessonTypingWidget> {
             userInput = '';
             isCorrect = false;
           });
-          widget.onNext?.call(); // Chuyển sang câu tiếp theo
+          widget.onNext?.call();
         },
       );
     } else {
-      // Khi sai, chỉ hiển thị text đơn giản
+      // Khi sai, chỉ hiển thị text sai
       return Align(
         alignment: Alignment.bottomCenter,
         child: Container(

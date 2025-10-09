@@ -6,10 +6,10 @@ import '../models/exercise_step.dart';
 class OfflineDataService {
   final DatabaseHelper _dbHelper = DatabaseHelper();
   
-  // Getter for testing
-  DatabaseHelper get dbHelper => _dbHelper;
+  // Getter để test
+  //DatabaseHelper get dbHelper => _dbHelper;
 
-  // Initialize preloaded SQLite database
+  // Khởi tạo SQLite database có sẵn
   Future<void> initializeOfflineData() async {
     try {
       // Database sẽ được copy từ assets tự động trong DatabaseHelper
@@ -27,7 +27,7 @@ class OfflineDataService {
   }
 
 
-  // Load lesson from database
+  // Load bài học từ database
   Future<DatabaseLesson?> loadLesson(int lessonId) async {
     try {
       final lessonMaps = await _dbHelper.getAllLessons();
@@ -40,21 +40,21 @@ class OfflineDataService {
       
       final lesson = DatabaseLesson.fromMap(lessonMap);
       
-      // Load parts
+      // Load các phần
       final partMaps = await _dbHelper.getPartsByLessonId(lesson.id!);
       final parts = <DatabasePart>[];
       
       for (final partMap in partMaps) {
         final part = DatabasePart.fromMap(partMap);
         
-        // Load exercises for this part
+        // Load bài tập cho phần này
         final exerciseMaps = await _dbHelper.getExercisesByPartId(part.id!);
         final exercises = <DatabaseExercise>[];
         
         for (final exerciseMap in exerciseMaps) {
           final exercise = DatabaseExercise.fromMap(exerciseMap);
           
-          // Load specific exercise data
+          // Load dữ liệu bài tập cụ thể
           await _loadExerciseData(exercise);
           exercises.add(exercise);
         }
@@ -80,7 +80,7 @@ class OfflineDataService {
     }
   }
 
-  // Load specific exercise data based on type
+  // Load dữ liệu bài tập cụ thể dựa trên loại
   Future<void> _loadExerciseData(DatabaseExercise exercise) async {
     if (exercise.type == ExerciseType.matchWords) {
       final matchWords = await _dbHelper.getMatchWordsByExerciseId(exercise.id!);
@@ -125,7 +125,7 @@ class OfflineDataService {
     }
   }
 
-  // Get all lessons
+  // Lấy tất cả bài học
   Future<List<DatabaseLesson>> getAllLessons() async {
     try {
       final lessonMaps = await _dbHelper.getAllLessons();
@@ -145,7 +145,7 @@ class OfflineDataService {
     }
   }
 
-  // Check if data exists
+  // Kiểm tra xem có dữ liệu không
   Future<bool> hasData() async {
     try {
       final lessons = await _dbHelper.getAllLessons();
@@ -156,7 +156,7 @@ class OfflineDataService {
     }
   }
 
-  // Initialize data if not exists
+  // Khởi tạo dữ liệu nếu chưa có
   Future<void> initializeDataIfNeeded() async {
     final hasExistingData = await hasData();
     if (!hasExistingData) {

@@ -198,9 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         // Điều hướng đến LoginScreen và xóa tất cả các màn hình trước đó
         Navigator.of(context).pushAndRemoveUntil(
-          // Tạo một route mới cho màn hình đăng nhập
           MaterialPageRoute(builder: (context) => const LoginScreen()),
-          // Điều kiện để xóa: (route) => false sẽ xóa tất cả các route cũ
               (Route<dynamic> route) => false,
         );
       }

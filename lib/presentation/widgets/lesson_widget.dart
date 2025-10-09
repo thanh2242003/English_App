@@ -106,8 +106,7 @@ class LessonWidget extends StatelessWidget {
               ),
             ),
           ),
-          //const SizedBox(height: 15),
-          // Nút bắt đầu/tiếp tục/thử lại
+          // Nút bắt đầu
           ElevatedButton(
             onPressed: onPress,
             style: ElevatedButton.styleFrom(

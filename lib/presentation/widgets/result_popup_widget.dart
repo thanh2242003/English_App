@@ -7,7 +7,7 @@ class ResultPopupWidget extends StatefulWidget {
   final VoidCallback onNext;
   final Color backgroundColor;
   final Color textColor;
-  final String englishText; // Text tiếng Anh để phát âm
+  final String englishText;
 
   const ResultPopupWidget({
     super.key,

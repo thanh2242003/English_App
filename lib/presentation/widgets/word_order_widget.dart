@@ -25,7 +25,6 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   
   // Text-to-speech
   FlutterTts flutterTts = FlutterTts();
-  //bool _isSpeaking = false;
 
   @override
   void initState() {
@@ -42,7 +41,6 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   
   void _speak(String text) async {
     await flutterTts.stop();
-    //await Future.delayed(const Duration(milliseconds: 50));
     await flutterTts.speak(text);
   }
   
@@ -89,7 +87,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   void _reset() {
     setState(() {
       _showResult = false;
-      _userAnswerWords.clear(); // Xóa câu trả lời để người dùng thử lại
+      _userAnswerWords.clear(); // Xóa câu trả lời để thử lại
     });
   }
 
@@ -108,7 +106,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
         },
       );
     } else {
-      // Khi sai, chỉ hiển thị text đơn giản
+      // Khi sai hiển thị text sai
       return Align(
         alignment: Alignment.bottomCenter,
         child: Container(
@@ -135,7 +133,6 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Khởi tạo optionWords trong build, loại bỏ các từ đã được chọn trong _userAnswerWords
     final List<String> optionWords = List.from(widget.quizData.words)
       ..removeWhere((word) => _userAnswerWords.contains(word));
 
@@ -209,7 +206,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                             ),
                           ),
                           onPressed: () {
-                            // Phát âm từ tiếng Anh khi nhấn chọn
+                            // Phát âm từ tiếng anh khi nhấn chọn
                             _speak(word);
                             setState(() {
                               _userAnswerWords.add(word);

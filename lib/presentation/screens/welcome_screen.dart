@@ -57,29 +57,6 @@ class WelcomeScreen extends StatelessWidget {
                   );
                 },
               ),
-              // child: TextButton(
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => OnboardingScreen()),
-              //     );
-              //   },
-              //   style: TextButton.styleFrom(
-              //     padding: const EdgeInsets.symmetric(vertical: 14),
-              //     backgroundColor: Colors.transparent,
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(12),
-              //     ),
-              //   ),
-              //   child: const Text(
-              //     "Đi thôi",
-              //     style: TextStyle(
-              //       fontSize: 24,
-              //       fontWeight: FontWeight.bold,
-              //       color: Colors.white,
-              //     ),
-              //   ),
-              // ),
             ),
 
             const SizedBox(height: 20),
@@ -103,27 +80,6 @@ class WelcomeScreen extends StatelessWidget {
                   );
                 },
               ),
-              // child: ElevatedButton(
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => LoginScreen()),
-              //     );
-              //   },
-              //   style: TextButton.styleFrom(
-              //     backgroundColor: Colors.white,
-              //     foregroundColor: Colors.grey,
-              //     padding: const EdgeInsets.symmetric(vertical: 14),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(12),
-              //       side: const BorderSide(color: Colors.grey),
-              //     ),
-              //   ),
-              //   child: const Text(
-              //     "Tôi đã có tài khoản",
-              //     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              //   ),
-              // ),
             ),
 
             const SizedBox(height: 20),

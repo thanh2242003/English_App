@@ -12,7 +12,7 @@ class LessonMatchWidget extends StatefulWidget {
   });
 
   final MatchWordsQuiz data;
-  final VoidCallback onNext; // callback khi bấm “Tiếp theo”
+  final VoidCallback onNext;
 
   @override
   State<LessonMatchWidget> createState() => _LessonMatchWidgetState();
@@ -48,8 +48,7 @@ class _LessonMatchWidgetState extends State<LessonMatchWidget> {
     for (var v in vietnameseWords) {
       vietnameseHighlight[v] = Colors.white;
     }
-    
-    // Khởi tạo text-to-speech
+
     _initTts();
   }
   
@@ -204,7 +203,7 @@ class _LessonMatchWidgetState extends State<LessonMatchWidget> {
               enabled: allMatched || !shuffled,
               onTap: () {
                 if (allMatched) {
-                  widget.onNext(); // gọi callback để chuyển câu tiếp
+                  widget.onNext();
                 } else {
                   shuffleVietnamese();
                 }

@@ -4,10 +4,12 @@ class TranslationQuiz {
   final String englishWord;
   final List<String> options;
 
-  TranslationQuiz({
+  const TranslationQuiz({
     required this.imagePath,
     required this.meaning,
     required this.englishWord,
     required this.options,
   });
 }
+
+

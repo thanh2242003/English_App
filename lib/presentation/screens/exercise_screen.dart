@@ -1,17 +1,16 @@
-import 'package:english_app/data/offline_data_service.dart';
-import 'package:english_app/data/progress_service.dart';
-import 'package:english_app/models/database_models.dart';
-import 'package:english_app/models/exercise_step.dart';
-import 'package:english_app/models/match_word_quiz.dart';
-import 'package:english_app/models/translation_quiz.dart';
-import 'package:english_app/models/typing_quiz.dart';
-import 'package:english_app/models/user_progress.dart';
+import 'package:english_app/core/di/app_dependencies.dart';
+import 'package:english_app/domain/entities/exercise.dart';
+import 'package:english_app/domain/entities/lesson.dart';
+import 'package:english_app/domain/entities/match_words_quiz.dart';
+import 'package:english_app/domain/entities/translation_quiz.dart';
+import 'package:english_app/domain/entities/typing_quiz.dart';
+import 'package:english_app/domain/entities/user_progress.dart';
 import 'package:english_app/presentation/widgets/lesson_match_widget.dart';
 import 'package:english_app/presentation/widgets/lesson_translation_widget.dart';
 import 'package:english_app/presentation/widgets/lesson_typing_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/word_order_quiz.dart';
+import '../../domain/entities/word_order_quiz.dart';
 import '../widgets/word_order_widget.dart';
 
 class ExerciseScreen extends StatefulWidget {
@@ -25,11 +24,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   int _currentPartIndex = 0;
   int _currentExerciseIndex = 0;
   bool _isPartCompleted = false;
-  DatabaseLesson? _currentLesson;
+  Lesson? _currentLesson;
   bool _isLoading = true;
-  final OfflineDataService _dataService = OfflineDataService();
-  final ProgressService _progressService = ProgressService();
+  final AppDependencies _dependencies = AppDependencies();
   UserProgress? _userProgress;
+  List<Lesson> _availableLessons = [];
 
   @override
   void initState() {
@@ -37,41 +36,50 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     _loadLesson();
   }
 
-  Future<void> _loadLesson() async {
+  Future<void> _loadLesson({String? targetLessonTitle}) async {
     try {
-      final lessons = await _dataService.getAllLessons();
-      if (lessons.isNotEmpty) {
-        _currentLesson = lessons.first;
-        
-        // Load tiến độ từ Firebase
-        _userProgress = await _progressService.getProgressForLesson(_currentLesson!.title);
-        
-        if (_userProgress != null) {
-          // Kiểm tra xem có phải lesson khác không
-          if (_userProgress!.lessonTitle != _currentLesson!.title) {
-            _showLessonChoiceDialog();
-            return;
-          }
-          
-          // Nếu có tiến độ đã lưu, tiếp tục từ đó
-          _currentPartIndex = _progressService.getNextPartIndex(_userProgress, _currentLesson!.parts.length);
-          _currentExerciseIndex = _progressService.getNextExerciseIndex(_userProgress);
-          _isPartCompleted = _progressService.isPartCompleted(_userProgress, _currentPartIndex);
-        } else {
-          // Nếu chưa có tiến độ, bắt đầu từ đầu
-          _currentPartIndex = 0;
-          _currentExerciseIndex = 0;
-          _isPartCompleted = false;
-        }
-        
+      final lessons = await _dependencies.getAllLessons();
+      _availableLessons = lessons;
+
+      if (_availableLessons.isEmpty) {
         setState(() {
           _isLoading = false;
         });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
+        return;
       }
+
+      final selectedLesson = targetLessonTitle != null
+          ? _availableLessons.firstWhere(
+              (lesson) => lesson.title == targetLessonTitle,
+              orElse: () => _availableLessons.first,
+            )
+          : _availableLessons.first;
+
+      _currentLesson = selectedLesson;
+
+      _userProgress = await _dependencies.getProgressForLesson(selectedLesson.title);
+
+      if (_userProgress != null) {
+        if (_userProgress!.lessonTitle != selectedLesson.title && targetLessonTitle == null) {
+          _showLessonChoiceDialog();
+          return;
+        }
+
+        _currentPartIndex = _computeNextPartIndex(
+          _userProgress,
+          selectedLesson.parts.length,
+        );
+        _currentExerciseIndex = _computeNextExerciseIndex(_userProgress);
+        _isPartCompleted = _hasCompletedPart(_userProgress, _currentPartIndex);
+      } else {
+        _currentPartIndex = 0;
+        _currentExerciseIndex = 0;
+        _isPartCompleted = false;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -79,12 +87,29 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
   }
 
+  int _computeNextPartIndex(UserProgress? progress, int totalParts) {
+    if (progress == null) return 0;
+    if (progress.isPartCompleted) {
+      final nextPart = progress.currentPartIndex + 1;
+      return nextPart < totalParts ? nextPart : progress.currentPartIndex;
+    }
+    return progress.currentPartIndex;
+  }
+
+  int _computeNextExerciseIndex(UserProgress? progress) {
+    if (progress == null) return 0;
+    return progress.currentExerciseIndex;
+  }
+
+  bool _hasCompletedPart(UserProgress? progress, int partIndex) {
+    if (progress == null) return false;
+    return progress.completedParts.containsKey(partIndex.toString());
+  }
+
   // Lấy danh sách các bài tập của phần hiện tại
   List<ExerciseStep> get _currentExercises {
     if (_currentLesson == null || _currentLesson!.parts.isEmpty) return [];
-    return _currentLesson!.parts[_currentPartIndex].exercises
-        .map((exercise) => exercise.toExerciseStep())
-        .toList();
+    return _currentLesson!.parts[_currentPartIndex].exercises;
   }
 
   // Lấy bài tập hiện tại
@@ -94,7 +119,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   Future<void> saveProgress() async {
     if (_currentLesson == null) return;
     
-    await _progressService.saveProgress(
+    await _dependencies.saveProgress(
       lessonTitle: _currentLesson!.title,
       currentPartIndex: _currentPartIndex,
       currentExerciseIndex: _currentExerciseIndex,
@@ -127,7 +152,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     if (_currentLesson == null) return;
     
     // Đánh dấu part đã hoàn thành
-    await _progressService.markPartCompleted(
+    await _dependencies.markPartCompleted(
       lessonTitle: _currentLesson!.title,
       partIndex: _currentPartIndex,
       totalExercises: _currentExercises.length,
@@ -138,7 +163,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     await saveProgress();
     
     // Cập nhật userProgress local
-    _userProgress = await _progressService.getProgressForLesson(_currentLesson!.title);
+    _userProgress = await _dependencies.getProgressForLesson(_currentLesson!.title);
     
     // Kiểm tra nếu đang ở part 2 (index = 1) thì hoàn thành bài học luôn
     if (_currentPartIndex == 1) {
@@ -164,7 +189,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   void _handleLessonCompletion() async {
     if (_currentLesson != null) {
       // Đánh dấu lesson đã hoàn thành
-      await _progressService.markLessonCompleted(_currentLesson!.title);
+      await _dependencies.markLessonCompleted(_currentLesson!.title);
     }
     
     saveProgress();
@@ -194,15 +219,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                // Tiếp tục bài học cũ
-                _currentLesson = DatabaseLesson(
-                  title: _userProgress!.lessonTitle,
-                  createdAt: DateTime.now().toIso8601String(),
-                  parts: [], // Sẽ load từ database
-                );
-                _loadLesson();
+                setState(() {
+                  _isLoading = true;
+                });
+                await _loadLesson(targetLessonTitle: _userProgress?.lessonTitle);
               },
               child: const Text(
                 'Tiếp tục bài cũ',
@@ -210,13 +232,14 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
                 // Bắt đầu bài học mới
-                _progressService.restartLessonProgress(_currentLesson!.title);
+                await _dependencies.restartLessonProgress(_currentLesson!.title);
                 _currentPartIndex = 0;
                 _currentExerciseIndex = 0;
                 _isPartCompleted = false;
+                _userProgress = null;
                 setState(() {
                   _isLoading = false;
                 });

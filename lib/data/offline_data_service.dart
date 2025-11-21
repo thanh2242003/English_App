@@ -1,19 +1,17 @@
 import 'dart:convert';
+
 import 'database_helper.dart';
-import '../models/database_models.dart';
-import '../models/exercise_step.dart';
+import 'models/database_models.dart';
+import '../domain/entities/exercise.dart';
 
 class OfflineDataService {
   final DatabaseHelper _dbHelper = DatabaseHelper();
-  
-  // Getter để test
-  //DatabaseHelper get dbHelper => _dbHelper;
+
 
   // Khởi tạo SQLite database có sẵn
   Future<void> initializeOfflineData() async {
     try {
       // Database sẽ được copy từ assets tự động trong DatabaseHelper
-      // Chỉ cần kiểm tra xem có dữ liệu không
       final hasDataResult = await hasData();
       if (!hasDataResult) {
         print('Warning: No data found in preloaded database');

@@ -1,4 +1,4 @@
-import 'package:english_app/models/match_word_quiz.dart';
+import 'package:english_app/domain/entities/match_words_quiz.dart';
 import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:flutter_tts/flutter_tts.dart';

@@ -1,3 +1,4 @@
+import 'package:english_app/core/di/app_dependencies.dart';
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/presentation/screens/main_screen.dart';
 import 'package:english_app/presentation/screens/register_screen.dart';
@@ -17,15 +18,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
+  final AppDependencies _dependencies = AppDependencies();
 
   // Đăng nhập bằng email + password
   Future<void> loginWithEmail() async {
     try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final user = await _dependencies.signInWithEmail(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (credential.user != null) {
+      if (!mounted) return;
+      if (user != null) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -33,9 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lỗi đăng nhập: $e")),
+      );
     }
   }
 
@@ -52,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
         credential,
       );
       if (userCred.user != null) {
+        if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -59,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Google lỗi: $e")));

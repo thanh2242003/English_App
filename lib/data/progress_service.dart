@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/user_progress.dart';
+
+import 'models/user_progress_model.dart';
 
 class ProgressService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -63,7 +64,7 @@ class ProgressService {
   }
 
   // Lấy tiến độ hiện tại của user
-  Future<UserProgress?> getCurrentProgress() async {
+  Future<UserProgressModel?> getCurrentProgress() async {
     final user = _auth.currentUser;
     if (user == null) return null;
 
@@ -74,7 +75,7 @@ class ProgressService {
           .get();
 
       if (doc.exists) {
-        return UserProgress.fromFirestore(doc);
+        return UserProgressModel.fromFirestore(doc);
       }
       return null;
     } catch (e) {
@@ -83,7 +84,7 @@ class ProgressService {
   }
 
   // Lấy tiến độ cho một lesson cụ thể
-  Future<UserProgress?> getProgressForLesson(String lessonTitle) async {
+  Future<UserProgressModel?> getProgressForLesson(String lessonTitle) async {
     final user = _auth.currentUser;
     if (user == null) {
       return null;
@@ -96,7 +97,7 @@ class ProgressService {
           .get();
 
       if (doc.exists) {
-        final progress = UserProgress.fromFirestore(doc);
+        final progress = UserProgressModel.fromFirestore(doc);
         
         // Kiểm tra xem có dữ liệu tiến độ không
         if (progress.lessonTitle.isNotEmpty && progress.currentPartIndex >= 0) {
@@ -110,13 +111,13 @@ class ProgressService {
   }
 
   // Kiểm tra xem part đã được hoàn thành chưa
-  bool isPartCompleted(UserProgress? progress, int partIndex) {
+  bool isPartCompleted(UserProgressModel? progress, int partIndex) {
     if (progress == null) return false;
     return progress.completedParts.containsKey(partIndex.toString());
   }
 
   // Lấy part tiếp theo cần học
-  int getNextPartIndex(UserProgress? progress, int totalParts) {
+  int getNextPartIndex(UserProgressModel? progress, int totalParts) {
     if (progress == null) return 0;
 
     // Nếu part hiện tại đã hoàn thành, chuyển sang part tiếp theo
@@ -130,7 +131,7 @@ class ProgressService {
   }
 
   // Lấy exercise index tiếp theo trong part
-  int getNextExerciseIndex(UserProgress? progress) {
+  int getNextExerciseIndex(UserProgressModel? progress) {
     if (progress == null) return 0;
     
     // bắt đầu từ exercise đầu tiên của part

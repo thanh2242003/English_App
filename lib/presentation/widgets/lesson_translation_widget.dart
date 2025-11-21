@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:english_app/core/widgets/my_button.dart';
-import 'package:english_app/models/translation_quiz.dart';
+import 'package:english_app/domain/entities/translation_quiz.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:english_app/presentation/widgets/result_popup_widget.dart';
 

@@ -2,8 +2,8 @@ import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/di/app_dependencies.dart';
 import '../../core/widgets/my_button.dart';
-import '../../data/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,6 +18,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  final AppDependencies _dependencies = AppDependencies();
 
   @override
   void dispose() {
@@ -155,9 +156,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       }
           
                       try {
-                        //  Gọi AuthService
-                        final user = await AuthService().signUp(email, password);
+                        final user = await _dependencies.signUpWithEmail(
+                          email: email,
+                          password: password,
+                        );
           
+                        if (!mounted) return;
+
                         if (user != null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -178,6 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           );
                         }
                       } catch (e) {
+                        if (!mounted) return;
                         //  Bắt lỗi Firebase hoặc lỗi khác
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Đăng ký thất bại: $e")),

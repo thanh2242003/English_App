@@ -1,3 +1,4 @@
+import 'package:english_app/core/di/app_dependencies.dart';
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +15,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final AppDependencies _dependencies = AppDependencies();
 
   String _userName = '';
   String _userEmail = '';
@@ -194,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _signOut() async {
     try {
-      await _auth.signOut();
+      await _dependencies.signOut();
       if (mounted) {
         // Điều hướng đến LoginScreen và xóa tất cả các màn hình trước đó
         Navigator.of(context).pushAndRemoveUntil(

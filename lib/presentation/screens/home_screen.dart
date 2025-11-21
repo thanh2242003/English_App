@@ -1,5 +1,5 @@
-import 'package:english_app/data/progress_service.dart';
-import 'package:english_app/models/user_progress.dart';
+import 'package:english_app/core/di/app_dependencies.dart';
+import 'package:english_app/domain/entities/user_progress.dart';
 import 'package:english_app/presentation/screens/exercise_screen.dart';
 import 'package:english_app/presentation/widgets/lesson_widget.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late PageController _pageController;
-  final ProgressService _progressService = ProgressService();
+  final AppDependencies _dependencies = AppDependencies();
   UserProgress? _userProgress;
   List<String> _completedLessons = [];
   bool _isLoading = true;
@@ -27,8 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadProgress() async {
     try {
-      _userProgress = await _progressService.getCurrentProgress();
-      _completedLessons = await _progressService.getCompletedLessons();
+      _userProgress = await _dependencies.getCurrentProgress();
+      _completedLessons = await _dependencies.getCompletedLessons();
       setState(() {
         _isLoading = false;
       });
@@ -42,8 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
   // Refresh tiến độ khi quay lại từ lesson
   Future<void> _refreshProgress() async {
     try {
-      _userProgress = await _progressService.getCurrentProgress();
-      _completedLessons = await _progressService.getCompletedLessons();
+      _userProgress = await _dependencies.getCurrentProgress();
+      _completedLessons = await _dependencies.getCompletedLessons();
       setState(() {
         _isLoading = false;
       });
@@ -82,14 +82,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Kiểm tra lesson đã hoàn thành chưa
   bool _isLessonCompleted(String lessonName) {
-    String firebaseLessonName = _mapLessonNameToFirebase(lessonName);
+    final firebaseLessonName = _mapLessonNameToFirebase(lessonName);
     return _completedLessons.contains(firebaseLessonName);
   }
 
   // Lấy trạng thái lesson để hiển thị text nút
   String _getLessonButtonText(String lessonName) {
     String firebaseLessonName = _mapLessonNameToFirebase(lessonName);
-    if (_isLessonCompleted(firebaseLessonName)) {
+    if (_isLessonCompleted(lessonName)) {
       return "Thử lại";
     }
     
@@ -250,8 +250,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPress: () async {
                               // Nếu thử lại thì restart bài học
                               if (_getLessonButtonText('Bài học 1') == "Thử lại") {
-                                await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 1'));
+                                await _dependencies.restartLessonProgress(
+                                  _mapLessonNameToFirebase('Bài học 1'),
+                                );
                               }
+                              if (!mounted) return;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -273,8 +276,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPress: () async {
                               // Nếu thử lại thì restart bài học
                               if (_getLessonButtonText('Bài học 2') == "Thử lại") {
-                                await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 2'));
+                                await _dependencies.restartLessonProgress(
+                                  _mapLessonNameToFirebase('Bài học 2'),
+                                );
                               }
+                              if (!mounted) return;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -296,8 +302,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPress: () async {
                               // Nếu thử lại thì restart bài học
                               if (_getLessonButtonText('Bài học 3') == "Thử lại") {
-                                await _progressService.restartLessonProgress(_mapLessonNameToFirebase('Bài học 3'));
+                                await _dependencies.restartLessonProgress(
+                                  _mapLessonNameToFirebase('Bài học 3'),
+                                );
                               }
+                              if (!mounted) return;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

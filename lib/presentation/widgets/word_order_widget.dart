@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import '../../models/word_order_quiz.dart';
+import '../../domain/entities/word_order_quiz.dart';
 import 'result_popup_widget.dart';
 
 class WordOrderWidget extends StatefulWidget {

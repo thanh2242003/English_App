@@ -1,11 +1,9 @@
-import 'dart:convert';
-import 'exercise_step.dart';
-import 'translation_quiz.dart';
-import 'typing_quiz.dart';
-import 'word_order_quiz.dart';
-import 'match_word_quiz.dart';
+import '../../domain/entities/exercise.dart';
+import '../../domain/entities/match_words_quiz.dart';
+import '../../domain/entities/translation_quiz.dart';
+import '../../domain/entities/typing_quiz.dart';
+import '../../domain/entities/word_order_quiz.dart';
 
-// Database model cho Lesson
 class DatabaseLesson {
   final int? id;
   final String title;
@@ -24,7 +22,7 @@ class DatabaseLesson {
       id: map['id'],
       title: map['title'],
       createdAt: map['created_at'],
-      parts: [],
+      parts: const [],
     );
   }
 
@@ -35,10 +33,8 @@ class DatabaseLesson {
       'created_at': createdAt,
     };
   }
-
 }
 
-// Database model cho Part
 class DatabasePart {
   final int? id;
   final int? lessonId;
@@ -60,7 +56,7 @@ class DatabasePart {
       lessonId: map['lesson_id'],
       title: map['title'],
       orderIndex: map['order_index'],
-      exercises: [],
+      exercises: const [],
     );
   }
 
@@ -72,10 +68,8 @@ class DatabasePart {
       'order_index': orderIndex,
     };
   }
-
 }
 
-// Database model cho Exercise
 class DatabaseExercise {
   final int? id;
   final int? partId;
@@ -119,39 +113,27 @@ class DatabaseExercise {
     };
   }
 
-
-  // Convert về ExerciseStep model cũ
   ExerciseStep toExerciseStep() {
     Object data;
 
     switch (type) {
       case ExerciseType.matchWords:
         final matchData = exerciseData as DatabaseMatchWords?;
-        data = matchData?.toMatchWordsQuiz() ?? MatchWordsQuiz(wordMap: {});
+        data = matchData?.toMatchWordsQuiz() ?? const MatchWordsQuiz(wordMap: {});
         break;
       case ExerciseType.chooseTranslation:
         final translationData = exerciseData as DatabaseTranslationQuiz?;
-        data = translationData?.toTranslationQuiz() ?? TranslationQuiz(
-          imagePath: '',
-          meaning: '',
-          englishWord: '',
-          options: [],
-        );
+        data = translationData?.toTranslationQuiz() ??
+            const TranslationQuiz(imagePath: '', meaning: '', englishWord: '', options: []);
         break;
       case ExerciseType.typingQuiz:
         final typingData = exerciseData as DatabaseTypingQuiz?;
-        data = typingData?.toTypingQuiz() ?? TypingQuiz(
-          vietnamese: '',
-          english: '',
-        );
+        data = typingData?.toTypingQuiz() ?? const TypingQuiz(vietnamese: '', english: '');
         break;
       case ExerciseType.wordOrder:
         final wordOrderData = exerciseData as DatabaseWordOrderQuiz?;
-        data = wordOrderData?.toWordOrderQuiz() ?? WordOrderQuiz(
-          vietnamese: '',
-          words: [],
-          correctOrder: [],
-        );
+        data = wordOrderData?.toWordOrderQuiz() ??
+            const WordOrderQuiz(vietnamese: '', words: [], correctOrder: []);
         break;
     }
 
@@ -163,10 +145,8 @@ class DatabaseExercise {
   }
 }
 
-// Abstract class cho exercise data
 abstract class DatabaseExerciseData {}
 
-// Database model cho MatchWords
 class DatabaseMatchWords extends DatabaseExerciseData {
   final int? exerciseId;
   final Map<String, String> wordMap;
@@ -176,13 +156,11 @@ class DatabaseMatchWords extends DatabaseExerciseData {
     required this.wordMap,
   });
 
-
   MatchWordsQuiz toMatchWordsQuiz() {
     return MatchWordsQuiz(wordMap: wordMap);
   }
 }
 
-// Database model cho TranslationQuiz
 class DatabaseTranslationQuiz extends DatabaseExerciseData {
   final int? exerciseId;
   final String imagePath;
@@ -198,7 +176,6 @@ class DatabaseTranslationQuiz extends DatabaseExerciseData {
     required this.options,
   });
 
-
   TranslationQuiz toTranslationQuiz() {
     return TranslationQuiz(
       imagePath: imagePath,
@@ -209,7 +186,6 @@ class DatabaseTranslationQuiz extends DatabaseExerciseData {
   }
 }
 
-// Database model cho TypingQuiz
 class DatabaseTypingQuiz extends DatabaseExerciseData {
   final int? exerciseId;
   final String vietnamese;
@@ -221,7 +197,6 @@ class DatabaseTypingQuiz extends DatabaseExerciseData {
     required this.english,
   });
 
-
   TypingQuiz toTypingQuiz() {
     return TypingQuiz(
       vietnamese: vietnamese,
@@ -230,7 +205,6 @@ class DatabaseTypingQuiz extends DatabaseExerciseData {
   }
 }
 
-// Database model cho WordOrderQuiz
 class DatabaseWordOrderQuiz extends DatabaseExerciseData {
   final int? exerciseId;
   final String vietnamese;
@@ -244,7 +218,6 @@ class DatabaseWordOrderQuiz extends DatabaseExerciseData {
     required this.correctOrder,
   });
 
-
   WordOrderQuiz toWordOrderQuiz() {
     return WordOrderQuiz(
       vietnamese: vietnamese,
@@ -253,3 +226,4 @@ class DatabaseWordOrderQuiz extends DatabaseExerciseData {
     );
   }
 }
+

@@ -1,31 +1,64 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' as sqlcipher;
 import 'package:path/path.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
+import 'dart:math';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
   DatabaseHelper._internal();
 
-  static Database? _database;
+  static const _secureStorage = FlutterSecureStorage();
+  static const _dbKeyStorageKey = 'english_app_db_key';
 
-  Future<Database> get database async {
+  static sqlcipher.Database? _database;
+
+  Future<sqlcipher.Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
-  Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'english_app.db');
+  Future<String> _getOrCreateDbKey() async {
+    // Đọc key đã lưu trong secure storage
+    String? existingKey = await _secureStorage.read(key: _dbKeyStorageKey);
+    if (existingKey != null && existingKey.isNotEmpty) {
+      return existingKey;
+    }
+
+    // Nếu chưa có, sinh key mới (ngẫu nhiên, 32 ký tự)
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#%^&*()-_=+';
+    final rand = Random.secure();
+    final newKey = List.generate(
+      32,
+      (_) => chars[rand.nextInt(chars.length)],
+    ).join();
+
+    await _secureStorage.write(key: _dbKeyStorageKey, value: newKey);
+    return newKey;
+  }
+
+  Future<sqlcipher.Database> _initDatabase() async {
+    final dbPath = await sqlcipher.getDatabasesPath();
+    String path = join(dbPath, 'english_app.db');
     
     // Kiểm tra xem database đã tồn tại chưa
-    if (!await databaseExists(path)) {
+    if (!await sqlcipher.databaseExists(path)) {
       // Copy database từ assets
       await _copyDatabaseFromAssets(path);
     }
-    
-    return await openDatabase(path);
+
+    // Lấy key từ secure storage (hoặc tạo mới nếu chưa có)
+    final password = await _getOrCreateDbKey();
+
+    // Mở database với SQLCipher và password
+    return await sqlcipher.openDatabase(
+      path,
+      password: password,
+    );
   }
 
   Future<void> _copyDatabaseFromAssets(String dbPath) async {

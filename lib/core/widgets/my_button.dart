@@ -10,6 +10,7 @@ class MyButton extends StatelessWidget {
     this.iconPath,
     this.textColor = Colors.black,
     this.enabled = true,
+    this.isLoading = false,
   });
 
   final String data;
@@ -19,16 +20,20 @@ class MyButton extends StatelessWidget {
   final Color textColor;
   final String? iconPath;
   final bool enabled;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
-    // Nếu disable thì đổi màu
-    final Color effectiveBg = enabled ? backgroundColor : Colors.grey.shade800;
-    final Color effectiveText = enabled ? textColor : Colors.grey.shade400;
-    final Color effectiveBorder = enabled ? borderColor : Colors.grey.shade600;
+    final bool effectiveEnabled = enabled && !isLoading;
+    final Color effectiveBg =
+        effectiveEnabled ? backgroundColor : Colors.grey.shade800;
+    final Color effectiveText =
+        effectiveEnabled ? textColor : Colors.grey.shade400;
+    final Color effectiveBorder =
+        effectiveEnabled ? borderColor : Colors.grey.shade600;
 
     return ElevatedButton(
-      onPressed: enabled ? onTap : null,
+      onPressed: effectiveEnabled ? onTap : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: effectiveBg,
         shadowColor: Colors.transparent,
@@ -38,30 +43,36 @@ class MyButton extends StatelessWidget {
           side: BorderSide(color: effectiveBorder, width: 2),
         ),
       ),
-      child: iconPath != null
-          ? Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Image.asset(iconPath!, width: 24, height: 24),
-          const SizedBox(width: 40),
-          Text(
-            data,
-            style: TextStyle(
-              color: effectiveText,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-        ],
-      )
-          : Text(
-        data,
-        style: TextStyle(
-          color: effectiveText,
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-        ),
-      ),
+      child: isLoading
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 3),
+            )
+          : iconPath != null
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(iconPath!, width: 24, height: 24),
+                    const SizedBox(width: 40),
+                    Text(
+                      data,
+                      style: TextStyle(
+                        color: effectiveText,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                )
+              : Text(
+                  data,
+                  style: TextStyle(
+                    color: effectiveText,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
     );
   }
 }

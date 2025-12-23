@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_progress.dart';
+import 'auth_service.dart';
 
 class ProgressService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _authService = AuthService();
 
 
   // Lưu tiến độ hiện tại của user
@@ -15,14 +15,13 @@ class ProgressService {
     required bool isPartCompleted,
     Map<String, dynamic>? completedParts,
   }) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      return;
-    }
+    final user = await _authService.getCurrentUser();
+    if (user == null) return;
 
-    final progressRef = _firestore
-        .collection('users')
-        .doc(user.uid);
+    final uid = user['id'] ?? user['_id'] ?? user['uid'] ?? '';
+    if (uid == '') return;
+
+    final progressRef = _firestore.collection('users').doc(uid);
 
     final progressData = {
       'lessonTitle': lessonTitle,
@@ -46,12 +45,12 @@ class ProgressService {
     required int totalExercises,
     required int correctAnswers,
   }) async {
-    final user = _auth.currentUser;
+    final user = await _authService.getCurrentUser();
     if (user == null) return;
+    final uid = user['id'] ?? user['_id'] ?? user['uid'] ?? '';
+    if (uid == '') return;
 
-    final progressRef = _firestore
-        .collection('users')
-        .doc(user.uid);
+    final progressRef = _firestore.collection('users').doc(uid);
 
     final partCompletion = {
       'partIndex': partIndex,
@@ -64,14 +63,13 @@ class ProgressService {
 
   // Lấy tiến độ hiện tại của user
   Future<UserProgress?> getCurrentProgress() async {
-    final user = _auth.currentUser;
+    final user = await _authService.getCurrentUser();
     if (user == null) return null;
+    final uid = user['id'] ?? user['_id'] ?? user['uid'] ?? '';
+    if (uid == '') return null;
 
     try {
-      final doc = await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final doc = await _firestore.collection('users').doc(uid).get();
 
       if (doc.exists) {
         return UserProgress.fromFirestore(doc);
@@ -84,16 +82,13 @@ class ProgressService {
 
   // Lấy tiến độ cho một lesson cụ thể
   Future<UserProgress?> getProgressForLesson(String lessonTitle) async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      return null;
-    }
+    final user = await _authService.getCurrentUser();
+    if (user == null) return null;
+    final uid = user['id'] ?? user['_id'] ?? user['uid'] ?? '';
+    if (uid == '') return null;
 
     try {
-      final doc = await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final doc = await _firestore.collection('users').doc(uid).get();
 
       if (doc.exists) {
         final progress = UserProgress.fromFirestore(doc);
@@ -140,13 +135,12 @@ class ProgressService {
 
   // Reset tiến độ học
   Future<void> restartLessonProgress(String lessonTitle) async {
-    final user = _auth.currentUser;
+    final user = await _authService.getCurrentUser();
     if (user == null) return;
+    final uid = user['id'] ?? user['_id'] ?? user['uid'] ?? '';
+    if (uid == '') return;
 
-    await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .update({
+    await _firestore.collection('users').doc(uid).update({
       'lessonTitle': lessonTitle,
       'currentPartIndex': 0,
       'currentExerciseIndex': 0,
@@ -157,14 +151,13 @@ class ProgressService {
 
   // Lấy danh sách tất cả lesson đã hoàn thành
   Future<List<String>> getCompletedLessons() async {
-    final user = _auth.currentUser;
+    final user = await _authService.getCurrentUser();
     if (user == null) return [];
+    final uid = user['id'] ?? user['_id'] ?? user['uid'] ?? '';
+    if (uid == '') return [];
 
     try {
-      final doc = await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final doc = await _firestore.collection('users').doc(uid).get();
 
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
@@ -179,12 +172,12 @@ class ProgressService {
 
   // Đánh dấu lesson đã hoàn thành
   Future<void> markLessonCompleted(String lessonTitle) async {
-    final user = _auth.currentUser;
+    final user = await _authService.getCurrentUser();
     if (user == null) return;
+    final uid = user['id'] ?? user['_id'] ?? user['uid'] ?? '';
+    if (uid == '') return;
 
-    final progressRef = _firestore
-        .collection('users')
-        .doc(user.uid);
+    final progressRef = _firestore.collection('users').doc(uid);
 
     await progressRef.update({
       'completedLessons': FieldValue.arrayUnion([lessonTitle]),

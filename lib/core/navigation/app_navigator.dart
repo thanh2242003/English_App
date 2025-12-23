@@ -3,7 +3,7 @@ import 'package:english_app/presentation/screens/main_screen.dart';
 import 'package:english_app/presentation/screens/onboarding_screen.dart';
 import 'package:english_app/presentation/screens/splash_screen.dart';
 import 'package:english_app/presentation/screens/welcome_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../data/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,11 +29,9 @@ class _AppNavigatorState extends State<AppNavigator> {
       // Hiển thị splash screen ít nhất 2 giây
       await Future.delayed(const Duration(seconds: 2));
       
-      // Kiểm tra trạng thái đăng nhập
-      final user = FirebaseAuth.instance.currentUser;
-      
+      // Kiểm tra trạng thái đăng nhập bằng token/backend
+      final user = await AuthService().getCurrentUser();
       if (user != null) {
-        // User đã đăng nhập -> đi thẳng đến MainScreen
         setState(() {
           _initialScreen = const MainScreen();
           _isLoading = false;

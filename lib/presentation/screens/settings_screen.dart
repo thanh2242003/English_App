@@ -1,7 +1,6 @@
 import 'package:english_app/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../data/auth_service.dart';
 import 'package:english_app/core/widgets/my_button.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -12,8 +11,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final _authService = AuthService();
 
   String _userName = '';
   String _userEmail = '';
@@ -55,23 +53,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadUserData() async {
     try {
-      final user = _auth.currentUser;
+      final user = await _authService.getCurrentUser();
       if (user != null) {
         setState(() {
-          _userEmail = user.email ?? '';
+          _userEmail = user['email'] ?? '';
+          _userName = user['name'] ?? user['email'] ?? '';
         });
-
-        // Lấy thông tin user từ Firestore
-        final doc = await _firestore.collection('users').doc(user.uid).get();
-        if (doc.exists) {
-          setState(() {
-            _userName = doc.data()?['name'] ?? user.displayName ?? user.uid;
-          });
-        } else {
-          setState(() {
-            _userName = user.displayName ?? user.uid;
-          });
-        }
       }
     } catch (e) {
       print('Error loading user data: $e');
@@ -96,26 +83,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        // Cập nhật trong Firestore
-        await _firestore.collection('users').doc(user.uid).set({
-          'name': newName,
-          'email': _userEmail,
-        }, SetOptions(merge: true));
-
-        setState(() {
-          _userName = newName;
-          _isEditingName = false; // Tắt chế độ chỉnh sửa
-        });
-
-        _nameController.clear();
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tên đã được cập nhật thành công!')),
-          );
-        }
+      // Cập nhật tên người dùng cần được triển khai trên backend.
+      // Hiện tại tạm thời cập nhật local state và hiển thị thông báo.
+      setState(() {
+        _userName = newName;
+        _isEditingName = false;
+      });
+      _nameController.clear();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tên đã được cập nhật (local). Hãy cập nhật API backend để lưu thay đổi).')),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -151,30 +129,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        // Xác thực mật khẩu cũ
-        final credential = EmailAuthProvider.credential(
-          email: _userEmail,
-          password: _oldPasswordController.text,
-        );
-        await user.reauthenticateWithCredential(credential);
-
-        // Đổi mật khẩu mới
-        await user.updatePassword(_newPasswordController.text);
-
-        _oldPasswordController.clear();
-        _newPasswordController.clear();
-        _confirmPasswordController.clear();
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Mật khẩu đã được thay đổi thành công!'),
-            ),
-          );
-        }
-      }
+      // Đổi mật khẩu cần endpoint backend riêng (vì hiện tại dùng JWT).
+      // Hiện tại chưa có API, hiển thị thông báo.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đổi mật khẩu chưa được hỗ trợ trên client — cần API backend.')),
+      );
+      _oldPasswordController.clear();
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
     } catch (e) {
       if (mounted) {
         String errorMessage = 'Mật khẩu cũ không chính xác';
@@ -194,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _signOut() async {
     try {
-      await _auth.signOut();
+      await _authService.signOut();
       if (mounted) {
         // Điều hướng đến LoginScreen và xóa tất cả các màn hình trước đó
         Navigator.of(context).pushAndRemoveUntil(

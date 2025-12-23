@@ -1,10 +1,10 @@
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/presentation/screens/main_screen.dart';
 import 'package:english_app/presentation/screens/register_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// Firebase auth removed: using custom backend JWT
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import '../../data/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,76 +17,37 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
+  bool _isLoading  =false;
+  // Đăng nhập bằng email + password (sử dụng backend JWT)
+  Future<void> _handleLogin() async {
+    if (_isLoading) return;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vui lòng nhập đủ email và mật khẩu.")));
+      return;
+    }
 
-  // Đăng nhập bằng email + password
-  Future<void> loginWithEmail() async {
+    if (!mounted) return;
+    setState(() { _isLoading = true; });
     try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-      if (credential.user != null) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-          (Route<dynamic> route) => false,
-        );
+      final user = await AuthService().signIn(email, password);
+      if (user != null) {
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainScreen()), (r) => false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Đăng nhập thất bại: $e')));
+    } finally {
+      if (!mounted) return;
+      setState(() { _isLoading = false; });
     }
   }
 
-  // Đăng nhập bằng Google
-  Future<void> loginWithGoogle() async {
-    try {
-      final googleUser = await GoogleSignIn().signIn();
-      final googleAuth = await googleUser?.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-      final userCred = await FirebaseAuth.instance.signInWithCredential(
-        credential,
-      );
-      if (userCred.user != null) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-          (Route<dynamic> route) => false,
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Google lỗi: $e")));
-    }
-  }
 
-  // Đăng nhập bằng Facebook
-  // Future<void> loginWithFacebook() async {
-  //   try {
-  //     final LoginResult result = await FacebookAuth.instance.login();
-  //     if (result.status == LoginStatus.success) {
-  //       final OAuthCredential credential =
-  //       FacebookAuthProvider.credential(result.accessToken!.token);
-  //       await FirebaseAuth.instance.signInWithCredential(credential);
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text("Đăng nhập Facebook thành công!")),
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text("Facebook lỗi: ${result.message}")),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text("Facebook lỗi: $e")),
-  //     );
-  //   }
-  // }
+  // legacy social/firebase sign-in removed
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -170,21 +131,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: MyButton(
                     data: 'ĐĂNG NHẬP',
                     borderColor: Colors.blue,
-                    onTap: loginWithEmail,
+                    onTap: _handleLogin,
                   ),
                 ),
                 SizedBox(height: 20,),
-                MyButton(
-                  data: 'ĐĂNG NHẬP BẰNG GOOGLE',
-                  iconPath: 'assets/images/google_logo.png',
-                  onTap: loginWithGoogle,
-                ),
+                // Social login temporarily disabled when using custom backend
+                // MyButton(
+                //   data: 'ĐĂNG NHẬP BẰNG GOOGLE',
+                //   iconPath: 'assets/images/google_logo.png',
+                //   onTap: loginWithGoogle,
+                // ),
                 SizedBox(height: 20,),
-                MyButton(
-                  data: 'ĐĂNG NHẬP BẰNG FACEBOOK',
-                  iconPath: 'assets/images/facebook_logo.png',
-                  onTap: () {},
-                ),
+                // MyButton(
+                //   data: 'ĐĂNG NHẬP BẰNG FACEBOOK',
+                //   iconPath: 'assets/images/facebook_logo.png',
+                //   onTap: () {},
+                // ),
                 SizedBox(height: 20,),
                 RichText(
                   text: TextSpan(

@@ -1,0 +1,315 @@
+{
+  "tables": {
+    "lessons": [
+      {
+        "id": 1,
+        "title": "Bài học 1",
+        "created_at": "2025-01-08T00:00:00.000Z"
+      }
+    ],
+    "parts": [
+      {
+        "id": 1,
+        "lesson_id": 1,
+        "title": "Phần 1",
+        "order_index": 0
+      },
+      {
+        "id": 2,
+        "lesson_id": 1,
+        "title": "Phần 2",
+        "order_index": 1
+      }
+    ],
+    "exercises": [
+      {
+        "id": 1,
+        "part_id": 1,
+        "type": "matchWords",
+        "instruction": "Ghép từ tương ứng",
+        "data": "{}",
+        "order_index": 0
+      },
+      {
+        "id": 2,
+        "part_id": 1,
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "data": "{}",
+        "order_index": 1
+      },
+      {
+        "id": 3,
+        "part_id": 1,
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "data": "{}",
+        "order_index": 2
+      },
+      {
+        "id": 4,
+        "part_id": 1,
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "data": "{}",
+        "order_index": 3
+      },
+      {
+        "id": 5,
+        "part_id": 1,
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "data": "{}",
+        "order_index": 4
+      },
+      {
+        "id": 6,
+        "part_id": 1,
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "data": "{}",
+        "order_index": 5
+      },
+      {
+        "id": 7,
+        "part_id": 1,
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "data": "{}",
+        "order_index": 6
+      },
+      {
+        "id": 8,
+        "part_id": 1,
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "data": "{}",
+        "order_index": 7
+      },
+      {
+        "id": 9,
+        "part_id": 1,
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "data": "{}",
+        "order_index": 8
+      },
+      {
+        "id": 10,
+        "part_id": 1,
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "data": "{}",
+        "order_index": 9
+      },
+      {
+        "id": 11,
+        "part_id": 1,
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "data": "{}",
+        "order_index": 10
+      },
+      {
+        "id": 12,
+        "part_id": 1,
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "data": "{}",
+        "order_index": 11
+      },
+      {
+        "id": 13,
+        "part_id": 1,
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "data": "{}",
+        "order_index": 12
+      },
+      {
+        "id": 14,
+        "part_id": 2,
+        "type": "wordOrder",
+        "instruction": "Sắp xếp các từ thành câu đúng",
+        "data": "{}",
+        "order_index": 0
+      },
+      {
+        "id": 15,
+        "part_id": 2,
+        "type": "wordOrder",
+        "instruction": "Sắp xếp các từ thành câu đúng",
+        "data": "{}",
+        "order_index": 1
+      }
+      ,
+      {
+        "id": 16,
+        "part_id": 2,
+        "type": "wordOrder",
+        "instruction": "Sắp xếp các từ thành câu đúng",
+        "data": "{}",
+        "order_index": 2
+      }
+    ],
+    "match_words": [
+      {
+        "id": 1,
+        "exercise_id": 1,
+        "english_word": "Like",
+        "vietnamese_word": "Thích"
+      },
+      {
+        "id": 2,
+        "exercise_id": 1,
+        "english_word": "Want",
+        "vietnamese_word": "Muốn"
+      },
+      {
+        "id": 3,
+        "exercise_id": 1,
+        "english_word": "Work",
+        "vietnamese_word": "Làm việc"
+      },
+      {
+        "id": 4,
+        "exercise_id": 1,
+        "english_word": "Tea",
+        "vietnamese_word": "Trà"
+      },
+      {
+        "id": 5,
+        "exercise_id": 1,
+        "english_word": "Coffee",
+        "vietnamese_word": "Cà phê"
+      },
+      {
+        "id": 6,
+        "exercise_id": 1,
+        "english_word": "Here",
+        "vietnamese_word": "Ở đây"
+      }
+    ],
+    "translation_quizzes": [
+      {
+        "id": 1,
+        "exercise_id": 2,
+        "image_path": "assets/images/like_word.jpg",
+        "meaning": "Thích",
+        "english_word": "Like",
+        "options": "[\"Thích\", \"Muốn\"]"
+      },
+      {
+        "id": 2,
+        "exercise_id": 3,
+        "image_path": "assets/images/want_word.jpg",
+        "meaning": "Muốn",
+        "english_word": "Want",
+        "options": "[\"Muốn\", \"Ngủ\"]"
+      },
+      {
+        "id": 3,
+        "exercise_id": 4,
+        "image_path": "assets/images/work_word.jpg",
+        "meaning": "Làm việc",
+        "english_word": "Work",
+        "options": "[\"Làm việc\", \"Uống\"]"
+      },
+      {
+        "id": 4,
+        "exercise_id": 5,
+        "image_path": "assets/images/tea_word.jpg",
+        "meaning": "Trà",
+        "english_word": "Tea",
+        "options": "[\"Trà\", \"Nước\"]"
+      },
+      {
+        "id": 5,
+        "exercise_id": 6,
+        "image_path": "assets/images/coffee_word.jpg",
+        "meaning": "Cà phê",
+        "english_word": "Coffee",
+        "options": "[\"Cà phê\", \"Sữa\"]"
+      },
+      {
+        "id": 6,
+        "exercise_id": 7,
+        "image_path": "assets/images/here_word.jpg",
+        "meaning": "Đây, ở đây",
+        "english_word": "Here",
+        "options": "[\"Đây, ở đây\", \"Bản đồ\"]"
+      }
+    ],
+    "typing_quizzes": [
+      {
+        "id": 1,
+        "exercise_id": 8,
+        "vietnamese": "thích",
+        "english": "like"
+      },
+      {
+        "id": 2,
+        "exercise_id": 9,
+        "vietnamese": "muốn",
+        "english": "want"
+      },
+      {
+        "id": 3,
+        "exercise_id": 10,
+        "vietnamese": "làm việc",
+        "english": "work"
+      },
+      {
+        "id": 4,
+        "exercise_id": 11,
+        "vietnamese": "trà",
+        "english": "tea"
+      },
+      {
+        "id": 5,
+        "exercise_id": 12,
+        "vietnamese": "cà phê",
+        "english": "coffee"
+      },
+      {
+        "id": 6,
+        "exercise_id": 13,
+        "vietnamese": "ở đây",
+        "english": "here"
+      }
+    ],
+    "word_order_quizzes": [
+      {
+        "id": 1,
+        "exercise_id": 14,
+        "vietnamese": "Tôi thích trà",
+        "words": "[\"tea\", \"I\", \"like\"]",
+        "correct_order": "[\"I\", \"like\", \"tea\"]"
+      },
+      {
+        "id": 2,
+        "exercise_id": 15,
+        "vietnamese": "Bạn muốn cà phê",
+        "words": "[\"coffee\", \"You\", \"want\"]",
+        "correct_order": "[\"You\", \"want\", \"coffee\"]"
+      }
+      ,
+      {
+        "id": 3,
+        "exercise_id": 16,
+        "vietnamese": "Anh ấy làm việc ở đây",
+        "words": "[\"works\", \"here\", \"He\"]",
+        "correct_order": "[\"He\", \"works\", \"here\"]"
+      }
+    ]
+  },
+  "summary": {
+    "lessons": 1,
+    "parts": 2,
+    "exercises": 16,
+    "match_words": 6,
+    "translation_quizzes": 6,
+    "typing_quizzes": 6,
+    "word_order_quizzes": 3
+  }
+}

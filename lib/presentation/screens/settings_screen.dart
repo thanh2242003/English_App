@@ -122,37 +122,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _changePassword() async {
+    // 1. Validate form
     if (!_passwordFormKey.currentState!.validate()) return;
+
+    final currentPass = _oldPasswordController.text;
+    final newPass = _newPasswordController.text;
+
+    // 2. Kiểm tra logic phía client: Mật khẩu mới không được trùng mật khẩu cũ
+    if (currentPass == newPass) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Mật khẩu mới không được trùng với mật khẩu cũ'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
 
     setState(() {
       _isChangingPassword = true;
     });
 
     try {
-      // Đổi mật khẩu cần endpoint backend riêng (vì hiện tại dùng JWT).
-      // Hiện tại chưa có API, hiển thị thông báo.
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đổi mật khẩu chưa được hỗ trợ trên client — cần API backend.')),
-      );
-      _oldPasswordController.clear();
-      _newPasswordController.clear();
-      _confirmPasswordController.clear();
-    } catch (e) {
+      // 3. Gọi API thông qua AuthService
+      // Đảm bảo AuthService của bạn đã có hàm changePassword như chúng ta đã làm ở bước trước
+      await _authService.changePassword(currentPass, newPass);
+
       if (mounted) {
-        String errorMessage = 'Mật khẩu cũ không chính xác';
-        if (e.toString().contains('wrong-password')) {
-          errorMessage = 'Mật khẩu cũ không đúng';
+        // 4. Thành công: Đóng dialog và thông báo
+        Navigator.of(context).pop(); // Đóng dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đổi mật khẩu thành công!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Clear dữ liệu form
+        _oldPasswordController.clear();
+        _newPasswordController.clear();
+        _confirmPasswordController.clear();
+      }
+    } catch (e) {
+      // 5. Xử lý lỗi
+      if (mounted) {
+        String errorMessage = e.toString();
+        // Xử lý text lỗi cho đẹp
+        if (errorMessage.startsWith("Exception: ")) {
+          errorMessage = errorMessage.substring(11);
         }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
-      setState(() {
-        _isChangingPassword = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isChangingPassword = false;
+        });
+      }
     }
   }
+
 
   Future<void> _signOut() async {
     try {
@@ -202,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         'Tên:',
                         style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500),
                       ),
-                      _isEditingName 
+                      _isEditingName
                         ? TextField(
                             controller: _nameController,
                             style: const TextStyle(color: Colors.white, fontSize: 16),
@@ -226,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 IconButton(
                   onPressed: _isChangingName ? null : _toggleNameEditing,
-                  icon: _isChangingName 
+                  icon: _isChangingName
                     ? const SizedBox(
                         width: 20,
                         height: 20,

@@ -24,24 +24,29 @@ class AuthService {
     await _storage.delete(key: 'jwt');
   }
 
+  /// Đăng nhập: Trả về user nếu có token, hoặc throw 'OTP_REQUIRED' nếu cần xác thực OTP
   Future<Map<String, dynamic>?> signIn(String email, String password) async {
     final uri = Uri.parse('$_baseUrl/api/auth/login');
     final res = await http.post(uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}));
-    // Debug log
+
     print('[AuthService] POST ${uri.toString()} -> ${res.statusCode}');
     print('[AuthService] response: ${res.body}');
 
     if (res.statusCode == 200) {
       final body = jsonDecode(res.body);
-      print('[AuthService] parsed body keys: ${body is Map ? (body as Map).keys.toList() : body}');
       final token = body['token'] as String?;
-      var user = body['user'] as Map<String, dynamic>? ?? body['data'] as Map<String, dynamic>?;
-      if (token != null) await _saveToken(token);
 
-      // Nếu backend chỉ trả token, thử gọi /me để lấy thông tin user
-      if (user == null && token != null) {
+      // Nếu backend yêu cầu OTP, sẽ không trả token ngay mà chỉ trả message success
+      if (token == null) {
+        throw 'OTP_REQUIRED';
+      }
+
+      var user = body['user'] as Map<String, dynamic>? ?? body['data'] as Map<String, dynamic>?;
+      await _saveToken(token);
+
+      if (user == null) {
         user = await getCurrentUser();
       }
 
@@ -49,27 +54,63 @@ class AuthService {
     } else {
       final body = res.body.isNotEmpty ? jsonDecode(res.body) : null;
       final message = body != null && body['message'] != null ? body['message'] : res.body;
-      throw Exception('Login failed: $message');
+      throw Exception(message);
     }
   }
 
+  Future<bool> changePassword(String currentPassword, String newPassword) async {
+    final url = Uri.parse('$_baseUrl/api/auth/change-password');
+    try {
+      final tokenStr = await token;
+      if (tokenStr == null) throw Exception("Chưa đăng nhập");
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $tokenStr',
+        },
+        body: jsonEncode({
+          'currentPassword': currentPassword, // Tên field tùy backend: oldPassword, currentPassword...
+          'newPassword': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        final data = jsonDecode(response.body);
+        throw Exception(data['message'] ?? 'Đổi mật khẩu thất bại');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Đăng ký: Trả về user nếu có token, hoặc throw 'OTP_REQUIRED' nếu cần xác thực OTP
   Future<Map<String, dynamic>?> signUp(String email, String password) async {
     final uri = Uri.parse('$_baseUrl/api/auth/register');
     final res = await http.post(uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}));
-    // Debug log
+
     print('[AuthService] POST ${uri.toString()} -> ${res.statusCode}');
     print('[AuthService] response: ${res.body}');
 
     if (res.statusCode == 201 || res.statusCode == 200) {
       final body = jsonDecode(res.body);
       final token = body['token'] as String?;
-      var user = body['user'] as Map<String, dynamic>? ?? body['data'] as Map<String, dynamic>?;
-      if (token != null) await _saveToken(token);
 
-      // Nếu backend trả user trong các trường top-level (id/email), tạo map từ đó
+      // Nếu backend yêu cầu OTP
+      if (token == null) {
+        throw 'OTP_REQUIRED';
+      }
+
+      var user = body['user'] as Map<String, dynamic>? ?? body['data'] as Map<String, dynamic>?;
+      await _saveToken(token);
+
       if (user == null) {
+        // Build user map if possible
         if ((body['id'] ?? body['_id'] ?? body['userId']) != null || body['email'] != null) {
           user = <String, dynamic>{
             if (body['id'] != null) 'id': body['id'],
@@ -77,12 +118,10 @@ class AuthService {
             if (body['userId'] != null) 'id': body['userId'],
             if (body['email'] != null) 'email': body['email'],
           };
-          print('[AuthService] built user from top-level fields: $user');
         }
       }
 
-      // Nếu backend chỉ trả token, thử gọi /me để lấy thông tin user
-      if (user == null && token != null) {
+      if (user == null) {
         user = await getCurrentUser();
       }
 
@@ -90,8 +129,46 @@ class AuthService {
     } else {
       final body = res.body.isNotEmpty ? jsonDecode(res.body) : null;
       final message = body != null && body['message'] != null ? body['message'] : res.body;
-      throw Exception('Register failed: $message');
+      throw Exception(message);
     }
+  }
+
+  /// Xác thực OTP
+  Future<Map<String, dynamic>?> verifyOtp(String email, String otp) async {
+    final uri = Uri.parse('$_baseUrl/api/auth/verify-otp');
+    final res = await http.post(uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'otp': otp}));
+
+    print('[AuthService] POST ${uri.toString()} -> ${res.statusCode}');
+    print('[AuthService] response: ${res.body}');
+
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      final body = jsonDecode(res.body);
+      final token = body['token'] as String?;
+
+      if (token != null) {
+        await _saveToken(token);
+      }
+
+      var user = body['user'] as Map<String, dynamic>? ?? body['data'] as Map<String, dynamic>?;
+      if (user == null && token != null) {
+        user = await getCurrentUser();
+      }
+      return user;
+    } else {
+      final body = res.body.isNotEmpty ? jsonDecode(res.body) : null;
+      final message = body != null && body['message'] != null ? body['message'] : res.body;
+      throw Exception(message);
+    }
+  }
+
+  /// Gửi lại mã OTP (nếu cần)
+  Future<void> resendOtp(String email) async {
+    final uri = Uri.parse('$_baseUrl/api/auth/resend-otp'); // Endpoint giả định
+    await http.post(uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}));
   }
 
   /// Lấy thông tin user hiện tại từ backend bằng token
@@ -104,8 +181,6 @@ class AuthService {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $tk',
     });
-    print('[AuthService] GET ${uri.toString()} -> ${res.statusCode}');
-    print('[AuthService] response: ${res.body}');
 
     if (res.statusCode == 200) {
       final body = jsonDecode(res.body);
@@ -113,10 +188,8 @@ class AuthService {
       return user;
     }
 
-    // Nếu backend không có endpoint /me hoặc trả 404, thử decode payload JWT
     final payload = _decodeJwtPayload(tk);
     if (payload != null) {
-      // chuẩn hóa thông tin user tối thiểu
       final id = payload['sub'] ?? payload['id'] ?? payload['_id'];
       final email = payload['email'];
       return {

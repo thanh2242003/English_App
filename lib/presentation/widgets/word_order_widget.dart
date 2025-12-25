@@ -22,7 +22,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
   bool _showResult = false;
   bool _isCorrect = false;
   final List<String> _userAnswerWords = [];
-  
+
   // Text-to-speech
   FlutterTts flutterTts = FlutterTts();
 
@@ -31,26 +31,26 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
     super.initState();
     _initTts();
   }
-  
+
   void _initTts() async {
     await flutterTts.setLanguage("en-US");
     await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
   }
-  
+
   void _speak(String text) async {
     await flutterTts.stop();
     await flutterTts.speak(text);
   }
-  
+
   void _speakSentence(String sentence) async {
     // Dừng bất kỳ phát âm nào đang diễn ra
     await flutterTts.stop();
     await Future.delayed(const Duration(milliseconds: 100));
     await flutterTts.speak(sentence);
   }
-  
+
   @override
   void dispose() {
     flutterTts.stop();
@@ -66,7 +66,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
         _isCorrect = true;
         _showResult = true;
       });
-      
+
       // Phát âm câu hoàn chỉnh khi đúng
       Future.delayed(const Duration(milliseconds: 200), () {
         _speakSentence(correctAnswerString);
@@ -152,7 +152,6 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                     color: Colors.white70,
                     fontWeight: FontWeight.bold,
                   ),
-                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
                 Container(
@@ -179,7 +178,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                                 _userAnswerWords.remove(word);
                               });
                             },
-                            child: Text(word),
+                            child: Text(word, style: const TextStyle(fontSize: 18)),
                           ),
                         )
                         .toList(),
@@ -191,7 +190,6 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
             Column(
               children: [
                 Wrap(
-                  alignment: WrapAlignment.center,
                   spacing: 8,
                   runSpacing: 8,
                   children: optionWords
@@ -212,14 +210,18 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                               _userAnswerWords.add(word);
                             });
                           },
-                          child: Text(word),
+                          child: Text(
+                            word,
+                            style: const TextStyle(fontSize: 18),
+                          ),
                         ),
                       )
                       .toList(),
                 ),
                 const SizedBox(height: 30),
-                SizedBox(
+                Container(
                   width: double.infinity,
+                  margin: EdgeInsets.symmetric(horizontal: 40),
                   height: 50,
                   child: ElevatedButton(
                     onPressed: isCheckButtonEnabled ? _checkAnswer : null,
@@ -240,6 +242,7 @@ class _WordOrderWidgetState extends State<WordOrderWidget> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
               ],
             ),
           ],

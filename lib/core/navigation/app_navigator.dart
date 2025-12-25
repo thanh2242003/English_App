@@ -30,8 +30,8 @@ class _AppNavigatorState extends State<AppNavigator> {
       await Future.delayed(const Duration(seconds: 2));
       
       // Kiểm tra trạng thái đăng nhập bằng token/backend
-      final user = await AuthService().getCurrentUser();
-      if (user != null) {
+      final token = await AuthService().token;
+      if (token != null) {
         setState(() {
           _initialScreen = const MainScreen();
           _isLoading = false;

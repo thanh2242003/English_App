@@ -1,0 +1,156 @@
+[
+  {
+    "title": "Bài học 1",
+    "createdAt": "2025-01-08T00:00:00.000Z",
+    "exercises": [
+      {
+        "type": "matchWords",
+        "instruction": "Ghép từ tương ứng",
+        "order": 0,
+        "data": [
+          { "english": "Like", "vietnamese": "Thích" },
+          { "english": "Want", "vietnamese": "Muốn" },
+          { "english": "Work", "vietnamese": "Làm việc" },
+          { "english": "Tea", "vietnamese": "Trà" },
+          { "english": "Coffee", "vietnamese": "Cà phê" },
+          { "english": "Here", "vietnamese": "Ở đây" }
+        ]
+      },
+
+      {
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "order": 1,
+        "data": {
+          "englishWord": "Like",
+          "meaning": "Thích",
+          "imagePath": "assets/images/like_word.jpg",
+          "options": ["Thích", "Muốn"]
+        }
+      },
+      {
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "order": 2,
+        "data": {
+          "englishWord": "Want",
+          "meaning": "Muốn",
+          "imagePath": "assets/images/want_word.jpg",
+          "options": ["Muốn", "Ngủ"]
+        }
+      },
+      {
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "order": 3,
+        "data": {
+          "englishWord": "Work",
+          "meaning": "Làm việc",
+          "imagePath": "assets/images/work_word.jpg",
+          "options": ["Làm việc", "Uống"]
+        }
+      },
+      {
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "order": 4,
+        "data": {
+          "englishWord": "Tea",
+          "meaning": "Trà",
+          "imagePath": "assets/images/tea_word.jpg",
+          "options": ["Trà", "Nước"]
+        }
+      },
+      {
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "order": 5,
+        "data": {
+          "englishWord": "Coffee",
+          "meaning": "Cà phê",
+          "imagePath": "assets/images/coffee_word.jpg",
+          "options": ["Cà phê", "Sữa"]
+        }
+      },
+      {
+        "type": "chooseTranslation",
+        "instruction": "Chọn bản dịch",
+        "order": 6,
+        "data": {
+          "englishWord": "Here",
+          "meaning": "Đây, ở đây",
+          "imagePath": "assets/images/here_word.jpg",
+          "options": ["Đây, ở đây", "Bản đồ"]
+        }
+      },
+
+      {
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "order": 7,
+        "data": { "vietnamese": "thích", "english": "like" }
+      },
+      {
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "order": 8,
+        "data": { "vietnamese": "muốn", "english": "want" }
+      },
+      {
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "order": 9,
+        "data": { "vietnamese": "làm việc", "english": "work" }
+      },
+      {
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "order": 10,
+        "data": { "vietnamese": "trà", "english": "tea" }
+      },
+      {
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "order": 11,
+        "data": { "vietnamese": "cà phê", "english": "coffee" }
+      },
+      {
+        "type": "typingQuiz",
+        "instruction": "Nhập vào bản dịch",
+        "order": 12,
+        "data": { "vietnamese": "ở đây", "english": "here" }
+      },
+
+      {
+        "type": "wordOrder",
+        "instruction": "Sắp xếp các từ thành câu đúng",
+        "order": 13,
+        "data": {
+          "vietnamese": "Tôi thích trà",
+          "words": ["tea", "I", "like"],
+          "correctOrder": ["I", "like", "tea"]
+        }
+      },
+      {
+        "type": "wordOrder",
+        "instruction": "Sắp xếp các từ thành câu đúng",
+        "order": 14,
+        "data": {
+          "vietnamese": "Bạn muốn cà phê",
+          "words": ["coffee", "You", "want"],
+          "correctOrder": ["You", "want", "coffee"]
+        }
+      },
+      {
+        "type": "wordOrder",
+        "instruction": "Sắp xếp các từ thành câu đúng",
+        "order": 15,
+        "data": {
+          "vietnamese": "Anh ấy làm việc ở đây",
+          "words": ["works", "here", "He"],
+          "correctOrder": ["He", "works", "here"]
+        }
+      }
+    ]
+  }
+]

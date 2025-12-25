@@ -1,7 +1,7 @@
 import 'package:english_app/core/widgets/my_button.dart';
 import 'package:english_app/presentation/screens/main_screen.dart';
+import 'package:english_app/presentation/screens/otp_screen.dart';
 import 'package:english_app/presentation/screens/register_screen.dart';
-// Firebase auth removed: using custom backend JWT
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../data/auth_service.dart';
@@ -17,14 +17,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
-  bool _isLoading  =false;
-  // Đăng nhập bằng email + password (sử dụng backend JWT)
+  bool _isLoading = false;
+
   Future<void> _handleLogin() async {
     if (_isLoading) return;
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vui lòng nhập đủ email và mật khẩu.")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vui lòng nhập đủ email và mật khẩu.")),
+      );
       return;
     }
 
@@ -34,19 +36,32 @@ class _LoginScreenState extends State<LoginScreen> {
       final user = await AuthService().signIn(email, password);
       if (user != null) {
         if (!mounted) return;
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainScreen()), (r) => false);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+              (r) => false,
+        );
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Đăng nhập thất bại: $e')));
+      final errorMsg = e.toString();
+      if (errorMsg.contains('OTP_REQUIRED')) {
+        // Điều hướng sang màn hình OTP nếu server yêu cầu
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OTPScreen(email: email, isLogin: true),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Đăng nhập thất bại: ${errorMsg.replaceAll("Exception: ", "")}')),
+        );
+      }
     } finally {
-      if (!mounted) return;
-      setState(() { _isLoading = false; });
+      if (mounted) setState(() { _isLoading = false; });
     }
   }
-
-
-  // legacy social/firebase sign-in removed
 
   @override
   void dispose() {
@@ -63,11 +78,11 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Container(
             width: double.infinity,
-            margin: EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-                SizedBox(height: 65),
-                Text(
+                const SizedBox(height: 65),
+                const Text(
                   'Đăng nhập',
                   style: TextStyle(
                     color: Colors.black,
@@ -75,44 +90,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontSize: 33,
                   ),
                 ),
-                SizedBox(height: 40),
-                //TextField Email
+                const SizedBox(height: 40),
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    contentPadding: EdgeInsets.all(25),
+                    contentPadding: const EdgeInsets.all(25),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
-                      // viền chưa focus
+                      borderSide: const BorderSide(color: Color(0xCCE1DEDE), width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2),
-                      // viền khi focus
+                      borderSide: const BorderSide(color: Colors.blue, width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
-                SizedBox(height: 20,),
-                //TextField Mật khẩu
+                const SizedBox(height: 20),
                 TextField(
                   controller: _passwordController,
                   obscureText: _obscureText,
                   decoration: InputDecoration(
                     hintText: 'Mật khẩu',
-                    contentPadding: EdgeInsets.all(25),
+                    contentPadding: const EdgeInsets.all(25),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xCCE1DEDE), width: 2),
-                      // viền chưa focus
+                      borderSide: const BorderSide(color: Color(0xCCE1DEDE), width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2),
-                      // viền khi focus
+                      borderSide: const BorderSide(color: Colors.blue, width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    //ẩn hiện mật khẩu
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureText ? Icons.visibility : Icons.visibility_off,
@@ -125,44 +133,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 40,),
-                SizedBox(
-                  width: double.infinity,
-                  child: MyButton(
-                    data: 'ĐĂNG NHẬP',
-                    borderColor: Colors.blue,
-                    onTap: _handleLogin,
+                const SizedBox(height: 40),
+                if (_isLoading)
+                  const CircularProgressIndicator()
+                else
+                  SizedBox(
+                    width: double.infinity,
+                    child: MyButton(
+                      data: 'ĐĂNG NHẬP',
+                      borderColor: Colors.blue,
+                      onTap: _handleLogin,
+                    ),
                   ),
-                ),
-                SizedBox(height: 20,),
-                // Social login temporarily disabled when using custom backend
-                // MyButton(
-                //   data: 'ĐĂNG NHẬP BẰNG GOOGLE',
-                //   iconPath: 'assets/images/google_logo.png',
-                //   onTap: loginWithGoogle,
-                // ),
-                SizedBox(height: 20,),
-                // MyButton(
-                //   data: 'ĐĂNG NHẬP BẰNG FACEBOOK',
-                //   iconPath: 'assets/images/facebook_logo.png',
-                //   onTap: () {},
-                // ),
-                SizedBox(height: 20,),
+                const SizedBox(height: 20),
                 RichText(
                   text: TextSpan(
-                    text: 'Bạn chưa có tài khoản?',
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+                    text: 'Bạn chưa có tài khoản? ',
+                    style: const TextStyle(color: Colors.black, fontSize: 18),
                     children: [
                       TextSpan(
                         text: 'Đăng ký ngay',
-                        style: TextStyle(color: Colors.blue, fontSize: 18),
+                        style: const TextStyle(color: Colors.blue, fontSize: 18),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) {
-                                  return RegisterScreen();
+                                  return const RegisterScreen();
                                 },
                               ),
                             );
@@ -171,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 65),
+                const SizedBox(height: 65),
               ],
             ),
           ),

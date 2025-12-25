@@ -11,8 +11,8 @@ void main() async {
   );
   
   // SQLite
-  final offlineDataService = OfflineDataService();
-  await offlineDataService.initializeDataIfNeeded();
+  //final offlineDataService = OfflineDataService();
+  //await offlineDataService.initializeDataIfNeeded();
   
   runApp(const MyApp());
 }

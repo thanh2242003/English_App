@@ -10,6 +10,7 @@ class ExerciseStep {
     required this.instruction,
     required this.data,
 });
+
 }
 
 class Part {

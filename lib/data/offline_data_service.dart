@@ -1,166 +1,113 @@
-// import 'dart:convert';
-// import 'database_helper.dart';
-// import '../models/database_models.dart';
-// import '../models/exercise_step.dart';
-//
-// class OfflineDataService {
-//   final DatabaseHelper _dbHelper = DatabaseHelper();
-//
-//   // Getter để test
-//   //DatabaseHelper get dbHelper => _dbHelper;
-//
-//   // Khởi tạo SQLite database có sẵn
-//   Future<void> initializeOfflineData() async {
-//     try {
-//       // Database sẽ được copy từ assets tự động trong DatabaseHelper
-//       // Chỉ cần kiểm tra xem có dữ liệu không
-//       final hasDataResult = await hasData();
-//       if (!hasDataResult) {
-//         print('Warning: No data found in preloaded database');
-//       } else {
-//         print('Preloaded database initialized successfully');
-//       }
-//     } catch (e) {
-//       print('Error initializing preloaded database: $e');
-//       rethrow;
-//     }
-//   }
-//
-//
-//   // Load bài học từ database
-//   Future<DatabaseLesson?> loadLesson(int lessonId) async {
-//     try {
-//       final lessonMaps = await _dbHelper.getAllLessons();
-//       if (lessonMaps.isEmpty) return null;
-//
-//       final lessonMap = lessonMaps.firstWhere(
-//         (map) => map['id'] == lessonId,
-//         orElse: () => lessonMaps.first,
-//       );
-//
-//       final lesson = DatabaseLesson.fromMap(lessonMap);
-//
-//       // Load các phần
-//       final partMaps = await _dbHelper.getPartsByLessonId(lesson.id!);
-//       final parts = <DatabasePart>[];
-//
-//       for (final partMap in partMaps) {
-//         final part = DatabasePart.fromMap(partMap);
-//
-//         // Load bài tập cho phần này
-//         final exerciseMaps = await _dbHelper.getExercisesByPartId(part.id!);
-//         final exercises = <DatabaseExercise>[];
-//
-//         for (final exerciseMap in exerciseMaps) {
-//           final exercise = DatabaseExercise.fromMap(exerciseMap);
-//
-//           // Load dữ liệu bài tập cụ thể
-//           await _loadExerciseData(exercise);
-//           exercises.add(exercise);
-//         }
-//
-//         parts.add(DatabasePart(
-//           id: part.id,
-//           lessonId: part.lessonId,
-//           title: part.title,
-//           orderIndex: part.orderIndex,
-//           exercises: exercises,
-//         ));
-//       }
-//
-//       return DatabaseLesson(
-//         id: lesson.id,
-//         title: lesson.title,
-//         createdAt: lesson.createdAt,
-//         parts: parts,
-//       );
-//     } catch (e) {
-//       print('Error loading lesson: $e');
-//       return null;
-//     }
-//   }
-//
-//   // Load dữ liệu bài tập cụ thể dựa trên loại
-//   Future<void> _loadExerciseData(DatabaseExercise exercise) async {
-//     if (exercise.type == ExerciseType.matchWords) {
-//       final matchWords = await _dbHelper.getMatchWordsByExerciseId(exercise.id!);
-//       final wordMap = <String, String>{};
-//       for (final match in matchWords) {
-//         wordMap[match['english_word']] = match['vietnamese_word'];
-//       }
-//       exercise.exerciseData = DatabaseMatchWords(
-//         exerciseId: exercise.id,
-//         wordMap: wordMap,
-//       );
-//     } else if (exercise.type == ExerciseType.chooseTranslation) {
-//       final translationData = await _dbHelper.getTranslationQuizByExerciseId(exercise.id!);
-//       if (translationData != null) {
-//         exercise.exerciseData = DatabaseTranslationQuiz(
-//           exerciseId: exercise.id,
-//           imagePath: translationData['image_path'],
-//           meaning: translationData['meaning'],
-//           englishWord: translationData['english_word'],
-//           options: List<String>.from(jsonDecode(translationData['options'])),
-//         );
-//       }
-//     } else if (exercise.type == ExerciseType.typingQuiz) {
-//       final typingData = await _dbHelper.getTypingQuizByExerciseId(exercise.id!);
-//       if (typingData != null) {
-//         exercise.exerciseData = DatabaseTypingQuiz(
-//           exerciseId: exercise.id,
-//           vietnamese: typingData['vietnamese'],
-//           english: typingData['english'],
-//         );
-//       }
-//     } else if (exercise.type == ExerciseType.wordOrder) {
-//       final wordOrderData = await _dbHelper.getWordOrderQuizByExerciseId(exercise.id!);
-//       if (wordOrderData != null) {
-//         exercise.exerciseData = DatabaseWordOrderQuiz(
-//           exerciseId: exercise.id,
-//           vietnamese: wordOrderData['vietnamese'],
-//           words: List<String>.from(jsonDecode(wordOrderData['words'])),
-//           correctOrder: List<String>.from(jsonDecode(wordOrderData['correct_order'])),
-//         );
-//       }
-//     }
-//   }
-//
-//   // Lấy tất cả bài học
-//   Future<List<DatabaseLesson>> getAllLessons() async {
-//     try {
-//       final lessonMaps = await _dbHelper.getAllLessons();
-//       final lessons = <DatabaseLesson>[];
-//
-//       for (final lessonMap in lessonMaps) {
-//         final lesson = await loadLesson(lessonMap['id']);
-//         if (lesson != null) {
-//           lessons.add(lesson);
-//         }
-//       }
-//
-//       return lessons;
-//     } catch (e) {
-//       print('Error getting all lessons: $e');
-//       return [];
-//     }
-//   }
-//
-//   // Kiểm tra xem có dữ liệu không
-//   Future<bool> hasData() async {
-//     try {
-//       final lessons = await _dbHelper.getAllLessons();
-//       return lessons.isNotEmpty;
-//     } catch (e) {
-//       print('Error checking data existence: $e');
-//       return false;
-//     }
-//   }
-//
-//   // Khởi tạo dữ liệu nếu chưa có
-//   Future<void> initializeDataIfNeeded() async {
-//     final hasExistingData = await hasData();
-//     if (!hasExistingData) {
-//       await initializeOfflineData();
-//     }
-//   }
-// }
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import '../models/api_lesson_model.dart';
+import 'api_service.dart';
+import 'auth_service.dart'; // <--- Thêm import này để lấy token
+import 'encryption_service.dart';
+
+class OfflineDataService {
+  final ApiService _apiService = ApiService();
+  final EncryptionService _encryptionService = EncryptionService();
+  final AuthService _authService = AuthService(); // <--- Khởi tạo AuthService
+
+  static const String _fileName = 'offline_lessons.enc';
+
+  /// Hàm này sẽ được gọi ở màn hình DataInitializationScreen (sau khi login thành công)
+  /// Trả về true nếu tải và lưu thành công
+  Future<void> initializeData() async {
+    try {
+      final file = await _getLocalFile();
+
+      // (Tùy chọn) Kiểm tra nếu file đã tồn tại và có dữ liệu thì không tải lại
+      // Logic: Nếu file tồn tại -> Vào thẳng App. Nếu muốn update, phải gọi hàm forceUpdate riêng.
+      if (await file.exists()) {
+        final len = await file.length();
+        if (len > 0) {
+          print('Dữ liệu offline đã tồn tại ($len bytes). Bỏ qua tải về.');
+          return;
+        }
+      }
+
+      print('Bắt đầu quy trình tải dữ liệu từ Server...');
+
+      // 1. Lấy Token xác thực (QUAN TRỌNG)
+      final token = await _authService.token;
+
+      if (token == null || token.isEmpty) {
+        throw Exception("Lỗi xác thực: Không tìm thấy Token đăng nhập.");
+      }
+
+      // 2. Tải dữ liệu từ API (Gửi kèm Token)
+      // Lưu ý: Bạn cần chắc chắn hàm fetchAllLessons bên ApiService đã chấp nhận tham số token
+      final lessons = await _apiService.fetchAllLessons(token);
+
+      if (lessons.isEmpty) {
+        throw Exception("Server trả về danh sách bài học trống.");
+      }
+
+      print('Đã tải ${lessons.length} bài học. Đang mã hóa...');
+
+      // 3. Chuyển sang JSON String
+      final jsonString = jsonEncode(lessons.map((e) => e.toJson()).toList());
+
+      // 4. Mã hóa bằng Key bảo mật (Random)
+      final encryptedString = await _encryptionService.encryptData(jsonString);
+
+      // 5. Lưu vào file
+      await file.writeAsString(encryptedString);
+      print('Đã lưu và mã hóa dữ liệu thành công!');
+
+    } catch (e) {
+      print('Lỗi khởi tạo dữ liệu offline: $e');
+      // Nếu lỗi file rác, xóa đi để lần sau chạy lại từ đầu
+      await clearData();
+      rethrow; // Ném lỗi để UI hiển thị thông báo "Thử lại"
+    }
+  }
+
+  // Hàm lấy bài học từ file local (Dùng cho HomeScreen/ExerciseScreen)
+  Future<List<ApiLesson>> getLessons() async {
+    try {
+      final file = await _getLocalFile();
+      if (!await file.exists()) {
+        print('File dữ liệu không tồn tại.');
+        return [];
+      }
+
+      // 1. Đọc file
+      final encryptedContent = await file.readAsString();
+
+      if (encryptedContent.isEmpty) return [];
+
+      // 2. Giải mã
+      final jsonString = await _encryptionService.decryptData(encryptedContent);
+
+      // 3. Parse JSON
+      final List<dynamic> jsonList = jsonDecode(jsonString);
+      return jsonList.map((json) => ApiLesson.fromJson(json)).toList();
+    } catch (e) {
+      print('Lỗi đọc/giải mã dữ liệu offline: $e');
+      // Nếu file bị lỗi format hoặc hack, trả về rỗng để UI xử lý (hoặc xóa file đi)
+      return [];
+    }
+  }
+
+  // Hàm xóa dữ liệu (nếu cần Reset App hoặc Logout)
+  Future<void> clearData() async {
+    try {
+      final file = await _getLocalFile();
+      if (await file.exists()) {
+        await file.delete();
+        print("Đã xóa dữ liệu offline.");
+      }
+    } catch (e) {
+      print("Lỗi xóa file: $e");
+    }
+  }
+
+  Future<File> _getLocalFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    return File('${directory.path}/$_fileName');
+  }
+}

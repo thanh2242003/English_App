@@ -28,6 +28,16 @@ class ApiLesson {
       exercises: exercises,
     );
   }
+
+  // --- THÊM HÀM NÀY: Để chuyển object thành JSON lưu offline ---
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id, // Lưu ý: server trả về key là _id nên khi lưu lại cũng nên giữ nguyên
+      'title': title,
+      'createdAt': createdAt,
+      'exercises': exercises.map((e) => e.toJson()).toList(),
+    };
+  }
 }
 
 class ApiExercise {
@@ -53,6 +63,16 @@ class ApiExercise {
       order: json['order'],
       data: json['data'],
     );
+  }
+
+  // --- THÊM HÀM NÀY: Để chuyển bài tập thành JSON ---
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type.toString().split('.').last, // Chỉ lấy phần tên (ví dụ matchWords)
+      'instruction': instruction,
+      'order': order,
+      'data': data, // data là Map hoặc List động, jsonEncode sẽ tự xử lý
+    };
   }
 
   ExerciseStep toExerciseStep() {

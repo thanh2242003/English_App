@@ -1,11 +1,11 @@
 import 'package:english_app/data/auth_service.dart';
-import 'package:english_app/presentation/screens/main_screen.dart';
+import 'package:english_app/presentation/screens/data_initialization_screen.dart'; // <--- Import màn hình tải dữ liệu
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
 class OTPScreen extends StatefulWidget {
   final String email;
-  final bool isLogin; // Để phân biệt luồng nếu cần, hiện tại logic giống nhau
+  final bool isLogin;
 
   const OTPScreen({super.key, required this.email, this.isLogin = true});
 
@@ -34,14 +34,21 @@ class _OTPScreenState extends State<OTPScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final user = await AuthService().verifyOtp(widget.email, otp);
-      if (user != null) {
+      // 1. Gọi API xác thực OTP
+      final result = await AuthService().verifyOtp(widget.email, otp);
+
+      // Nếu result trả về null hoặc lỗi, AuthService thường sẽ ném Exception
+      // Nếu chạy đến đây tức là thành công
+
+      if (result != null) {
         if (!mounted) return;
-        // Xác thực thành công -> Vào màn hình chính
+
+        // --- THAY ĐỔI QUAN TRỌNG Ở ĐÂY ---
+        // Thay vì vào MainScreen, ta vào DataInitializationScreen để tải dữ liệu bài học
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-              (route) => false,
+          MaterialPageRoute(builder: (_) => const DataInitializationScreen()),
+              (route) => false, // Xóa hết lịch sử để người dùng không back lại màn hình OTP
         );
       }
     } catch (e) {

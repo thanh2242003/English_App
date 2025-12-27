@@ -1,41 +1,57 @@
 import 'dart:convert';
+import 'dart:io'; // <--- Thêm thư viện IO để xử lý SSL
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart'; // <--- Thêm thư viện này
 import 'package:english_app/models/api_lesson_model.dart';
-import 'package:english_app/data/auth_service.dart';
 
 class ApiService {
-  // Nếu chạy trên máy ảo Android, dùng 10.0.2.2 thay cho localhost
-  // Nếu chạy trên máy thật, dùng IP của máy tính (ví dụ 192.168.1.x)
-  final String baseUrl = "http://10.0.2.2:3000/api/lessons";
+  // Đổi thành HTTPS và port 8443
+  final String baseUrl = "https://10.0.2.2:8443/api/lessons";
 
-  Future<ApiLesson?> fetchLesson() async {
+  /// Hàm tạo Client HTTP bỏ qua lỗi SSL (Chỉ dùng cho môi trường DEV)
+  http.Client _createHttpClient() {
+    final ioc = HttpClient();
+    ioc.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    return IOClient(ioc);
+  }
+
+  Future<List<ApiLesson>> fetchAllLessons(String token) async {
+    // Sử dụng client đặc biệt này thay vì http.get trực tiếp
+    final client = _createHttpClient();
+
     try {
-      final token = await AuthService().token;
+      final uri = Uri.parse(baseUrl);
+
       final headers = {
         'Content-Type': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $token',
       };
 
-      final response = await http.get(Uri.parse(baseUrl), headers: headers);
+      print("Đang gọi API (HTTPS): $uri");
+
+      // Thay http.get bằng client.get
+      final response = await client.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
-        // Kiểm tra xem JSON trả về có đúng format { success: true, data: [...] } không
         if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
           List<dynamic> data = jsonResponse['data'];
-          if (data.isNotEmpty) {
-            // Lấy bài học đầu tiên (hoặc xử lý logic chọn bài học ở đây)
-            return ApiLesson.fromJson(data[0]);
-          }
+          print("API trả về ${data.length} bài học.");
+          return data.map((json) => ApiLesson.fromJson(json)).toList();
+        } else {
+          print("API trả về lỗi logic: $jsonResponse");
+          return [];
         }
       } else {
-        print("Lỗi khi tải bài học: ${response.statusCode}");
-        print("Body: ${response.body}");
+        print("Lỗi tải bài học (HTTP ${response.statusCode}): ${response.body}");
+        throw Exception("Server Error: ${response.statusCode}");
       }
     } catch (e) {
-      print("Lỗi kết nối API: $e");
+      print("Lỗi kết nối API (fetchAllLessons): $e");
+      rethrow;
+    } finally {
+      client.close(); // Nhớ đóng client sau khi dùng xong
     }
-    return null;
   }
 }
